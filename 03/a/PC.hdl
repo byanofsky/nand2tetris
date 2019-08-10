@@ -16,5 +16,21 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+        Inc16 (in=loop, out=incOut);
+        
+        // Originally had below, statement, but it is extraneous (as see in jtdowney's version).
+        // The input value for a would never be used.
+        // Also, if load == 0 AND reset == 0 AND regLoad == 1, then inc == 1.
+        // Therefore, resetOut == incOut.
+        // See: https://github.com/jtdowney/nand2tetris/blob/764b4c708b83a28d5972f6885a138dc858fb7dbb/03/a/PC.hdl#L22-L23
+        //
+        // Mux16 (a=in, b=outPlusOne, sel=inc, out=incOut);
+
+        Mux16 (a=incOut, b=in, sel=load, out=loadOut);
+        Mux16 (a=loadOut, b=false, sel=reset, out=resetOut);
+
+        Or (a=reset, b=load, out=resetOrLoad);
+        Or (a=resetOrLoad, b=inc, out=regLoad);
+
+        Register (in=resetOut, load=regLoad, out=loop, out=out);
 }
