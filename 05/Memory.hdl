@@ -27,5 +27,22 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+        // Route load bit to RAM or Screen/Keyboard locations
+        DMux (in=load, sel=address[14], a=loadRam, b=loadScrKbd);
+
+        // RAM memory
+        RAM16K (in=in, load=loadRam, address=address[0..13], out=outRam);
+        
+        // Load screen if address[13] == 0 and loadScrKbd == 1
+        Not (in=address[13], out=scrSel);
+        And (a=loadScrKbd, b=scrSel, out=loadScr);
+
+        Screen (in=in, load=loadScr, address=address[0..12], out=outScr);
+        Keyboard (out=outKbd);
+        
+        // if address[13] == 0, out = screen out, else out = kbd out
+        Mux16 (a=outScr, b=outKbd, sel=address[13], out=outScrKbd);
+
+        // if address[14] == 0, out = RAM out, else out = screen/kbd out
+        Mux16 (a=outRam, b=outScrKbd, sel=address[14], out=out);
 }
