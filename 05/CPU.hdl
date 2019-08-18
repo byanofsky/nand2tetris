@@ -39,5 +39,44 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+        // is A Instruction if instruction[15] == 0
+        Not (in=instruction[15], out=isAInstruction);
+
+        // A Input determined by instruction type
+        Mux16 (a=instruction, b=outALU, sel=instruction[15], out=inA);
+
+        // only load A if (d==1 or isAInstruction)
+        Or (a=instruction[5], b=isAInstruction, out=loadA);
+
+        // A Register
+        // Value fed to both A output and addressM
+        // NOTE: addressM output only 15 LSBs
+        ARegister(in=inA, load=loadA, out=outA, out[0..14]=addressM);
+
+        // Select A or M value based on `a` control bit
+        Mux16 (a=outA, b=inM, sel=instruction[12], out=outAM);
+
+        // Only load D register if (is C instruction && d2 == 1)
+        And (a=instruction[15], b=instruction[4], out=loadD);
+        DRegister(in=outALU, load=loadD, out=outD);
+
+        // NOTE: Output of ALU fed back to other chips AND to `outM`
+        ALU (x=outD, y=outAM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outALU, out=outM, zr=zr, ng=ng);
+
+        // writeM = isCInstruction & d3
+        And (a=instruction[15], b=instruction[3], out=writeM);
+
+        // Jump bits
+        And (a=instruction[2], b=ng, out=jNeg);
+        And (a=instruction[1], b=zr, out=jZer);
+        Or (a=ng, b=zr, out=orNgZr);  // negative or zero
+        Not (in=orNgZr, out=ps);  // positive?
+        And (a=instruction[0], b=ps, out=jPos);
+
+        // loadPC = isCInstruction && jump condition met
+        Or (a=jNeg, b=jZer, out=jump0);
+        Or (a=jump0, b=jPos, out=jump);
+        And (a=jump, b=instruction[15], out=loadPC);
+
+        PC (in=outA, load=loadPC, inc=true, reset=reset, out[0..14]=pc);
 }
