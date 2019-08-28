@@ -1,0 +1,12 @@
+{
+  "name": "hack-assembler",
+  "version": "1.0.0",
+  "description": "Assembler for Hack",
+  "main": "src/index.js",
+  "bin": "bin/assembler",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brandon Yanofsky",
+  "license": "MIT"
+}
