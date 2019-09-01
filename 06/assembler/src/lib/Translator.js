@@ -1,4 +1,12 @@
-const { lineTypes, isEmpty, isLabel, isInstruction } = require('./Parser');
+const fs = require('fs');
+const {
+  symbolTypes,
+  isLabel,
+  getType,
+  getSymbol,
+  getCValues,
+  isLocation
+} = require('./Symbol');
 
 const translateComp = comp => {
   switch (comp) {
@@ -107,42 +115,11 @@ const translateJump = jump => {
   }
 };
 
-const createTranslator = writeStream => {
-  const translate = (symbols, symbolTable) => {
-    symbols.filter(isInstruction).forEach(symbol => {
-      const translated = translateSymbol(symbol, symbolTable);
-      writeStream.write(translated + '\n');
-    });
-  };
-
-  return {
-    translate
-  };
-};
-
-const translateSymbol = (symbol, symbolTable) => {
-  switch (symbol.type) {
-    case lineTypes.whitespace:
-    case lineTypes.comment:
-      return null;
-    case lineTypes.aCommand:
-      return translateACommand(symbol, symbolTable);
-    case lineTypes.cCommand:
-      return translateCCommand(symbol);
-    default:
-      throw new Error('unrecognized symbol: ' + symbol.type);
-  }
-};
-
 const translateACommand = (symbol, symbolTable) => {
-  const { value } = symbol;
-  if (!value) {
-    throw new Error('A Command value cannot be null');
-  }
+  const value = getSymbol(symbol);
   let output;
-  const asNumber = Number(value);
-  if (Number.isInteger(asNumber) && asNumber >= 0) {
-    output = asNumber;
+  if (isLocation(value)) {
+    output = Number(value);
   } else if (symbolTable.has(value)) {
     output = symbolTable.get(value);
   } else {
@@ -153,13 +130,34 @@ const translateACommand = (symbol, symbolTable) => {
 };
 
 const translateCCommand = symbol => {
-  const { dest, comp, jump } = symbol.value;
+  const { dest, comp, jump } = getCValues(symbol);
   const compCode = translateComp(comp);
   const destCode = translateDest(dest);
   const jumpCode = translateJump(jump);
   return '111' + `${compCode}${destCode}${jumpCode}`;
 };
 
+const translateSymbol = (symbol, symbolTable) => {
+  const type = getType(symbol);
+  switch (type) {
+    case symbolTypes.A_COMMAND:
+      return translateACommand(symbol, symbolTable);
+    case symbolTypes.C_COMMAND:
+      return translateCCommand(symbol);
+    default:
+      throw new Error('unrecognized symbol: ' + type);
+  }
+};
+
+const translate = (filePath, symbolTable, symbols) => {
+  const writeStream = fs.createWriteStream(filePath);
+  symbols.forEach(symbol => {
+    if (isLabel(symbol)) return;
+    const translated = translateSymbol(symbol, symbolTable);
+    writeStream.write(translated + '\n');
+  });
+};
+
 module.exports = {
-  createTranslator
+  translate
 };

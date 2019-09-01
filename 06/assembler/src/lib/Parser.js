@@ -1,25 +1,38 @@
-const lineTypes = {
-  empty: 'empty',
-  label: 'label',
-  aCommand: 'a-command',
-  cCommand: 'c-command'
+const { createSymbol, symbolTypes } = require('./Symbol');
+
+const removeWhiteSpaceAndComments = line => {
+  const noWhiteSpace = removeWhiteSpace(line);
+  return removeComments(noWhiteSpace);
+};
+
+const removeWhiteSpace = line => {
+  return line.replace(/ /g, '');
+};
+
+const removeComments = line => {
+  return line.split('//')[0];
 };
 
 const parseLine = _line => {
+  let value;
+  let type;
   const line = removeWhiteSpaceAndComments(_line);
   if (!line.length) {
-    return { type: lineTypes.empty };
+    return null;
+  } else if (line[0] === '@') {
+    value = line.slice(1);
+    type = symbolTypes.A_COMMAND;
+  } else if (line[0] === '(') {
+    value = line.slice(1, line.length - 1);
+    type = symbolTypes.L_COMMAND;
+  } else {
+    value = parseCValues(line);
+    type = symbolTypes.C_COMMAND;
   }
-  if (line[0] === '@') {
-    return { type: lineTypes.aCommand, value: line.slice(1) };
-  }
-  if (line[0] === '(') {
-    return { type: lineTypes.label, value: line.slice(1, line.length - 1) };
-  }
-  return parseCCommand(line);
+  return createSymbol(value, type);
 };
 
-const parseCCommand = line => {
+const parseCValues = line => {
   let dest;
   let comp;
   let jump;
@@ -30,48 +43,12 @@ const parseCCommand = line => {
     [comp, jump] = line.split(';');
   }
   return {
-    type: lineTypes.cCommand,
-    value: {
-      dest: dest || null,
-      comp,
-      jump: jump || null
-    }
+    dest: dest || null,
+    comp,
+    jump: jump || null
   };
 };
 
-const removeWhiteSpaceAndComments = line => {
-  const noWhiteSpace = removeWhiteSpace(line);
-  return removeComments(noWhiteSpace);
-};
-const removeWhiteSpace = line => {
-  return line.replace(/ /g, '');
-};
-const removeComments = line => {
-  return line.split('//')[0];
-};
-const shouldIncLineCount = symbol => {
-  return symbol.type !== lineTypes.empty;
-};
-const isInstruction = symbol => {
-  return (
-    symbol.type === lineTypes.aCommand || symbol.type === lineTypes.cCommand
-  );
-};
-const isLabel = symbol => {
-  return symbol.type === lineTypes.label;
-};
-const isEmpty = symbol => {
-  return symbol.type === lineTypes.empty;
-};
-
 module.exports = {
-  lineTypes,
-  parseLine,
-  removeWhiteSpaceAndComments,
-  removeWhiteSpace,
-  removeComments,
-  shouldIncLineCount,
-  isLabel,
-  isEmpty,
-  isInstruction
+  parseLine
 };
