@@ -11,7 +11,7 @@ const getType = (line: string) => {
 };
 
 export default class Parser {
-  parseLine(originalText: string) {
+  parseLine(originalText: string, lineNum: number) {
     let command;
     let segment;
     let index;
@@ -23,6 +23,7 @@ export default class Parser {
     return new Token({
       type,
       originalText,
+      lineNum,
       command,
       segment,
       index

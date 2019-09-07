@@ -13,8 +13,9 @@ export default (filePath: string) => {
     input: createReadStream(filePath)
   });
 
+  let lineNum = 0;
   rl.on('line', line => {
-    const token = parser.parseLine(line);
+    const token = parser.parseLine(line, ++lineNum);
     codeWriter.translate(token);
   });
 };

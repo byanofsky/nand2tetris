@@ -11,6 +11,7 @@ export enum Segments {
 interface TokenProps {
   type: TokenType;
   originalText: string;
+  lineNum: number;
   command: string | undefined;
   segment: string | undefined;
   index: string | undefined;
@@ -19,13 +20,22 @@ interface TokenProps {
 export default class Token {
   type: TokenType;
   originalText: string;
+  lineNum: number;
   command: string | undefined;
   segment: string | undefined;
   index: number | undefined;
 
-  constructor({ type, originalText, command, segment, index }: TokenProps) {
+  constructor({
+    type,
+    originalText,
+    command,
+    segment,
+    index,
+    lineNum
+  }: TokenProps) {
     this.type = type;
     this.originalText = originalText;
+    this.lineNum = lineNum;
     this.command = command;
     this.segment = segment;
     this.index = index === undefined ? undefined : Number(index);
