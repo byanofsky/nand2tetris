@@ -5,11 +5,19 @@ export enum TokenType {
 }
 
 export enum Segments {
-  constant = 'constant'
+  constant = 'constant',
+  local = 'local', //1
+  argument = 'argument', //2
+  this = 'this', //3
+  that = 'that', //4
+  pointer = 'pointer', //3-4
+  temp = 'temp', //5-12
+  static = 'static' //@xxx.i
 }
 
 interface TokenProps {
   type: TokenType;
+  baseName: string;
   originalText: string;
   lineNum: number;
   command: string | undefined;
@@ -19,6 +27,7 @@ interface TokenProps {
 
 export default class Token {
   type: TokenType;
+  baseName: string;
   originalText: string;
   lineNum: number;
   command: string | undefined;
@@ -27,6 +36,7 @@ export default class Token {
 
   constructor({
     type,
+    baseName,
     originalText,
     command,
     segment,
@@ -34,6 +44,7 @@ export default class Token {
     lineNum
   }: TokenProps) {
     this.type = type;
+    this.baseName = baseName;
     this.originalText = originalText;
     this.lineNum = lineNum;
     this.command = command;
