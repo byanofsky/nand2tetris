@@ -14,7 +14,7 @@ A=M
 D=M
 @R13
 M=D
-@1
+@LCL
 D=M
 @0
 D=A+D
@@ -51,7 +51,7 @@ A=M
 D=M
 @R13
 M=D
-@2
+@ARG
 D=M
 @2
 D=A+D
@@ -70,7 +70,7 @@ A=M
 D=M
 @R13
 M=D
-@2
+@ARG
 D=M
 @1
 D=A+D
@@ -98,7 +98,7 @@ A=M
 D=M
 @R13
 M=D
-@3
+@THIS
 D=M
 @6
 D=A+D
@@ -135,7 +135,7 @@ A=M
 D=M
 @R13
 M=D
-@4
+@THAT
 D=M
 @5
 D=A+D
@@ -154,7 +154,7 @@ A=M
 D=M
 @R13
 M=D
-@4
+@THAT
 D=M
 @2
 D=A+D
@@ -184,7 +184,7 @@ D=M
 M=D
 
 // 21: push local 0
-@1
+@LCL
 D=M
 @0
 A=D+A
@@ -196,7 +196,7 @@ M=D
 M=M+1
 
 // 22: push that 5
-@4
+@THAT
 D=M
 @5
 A=D+A
@@ -220,7 +220,7 @@ M=M+D
 M=M+1
 
 // 24: push argument 1
-@2
+@ARG
 D=M
 @1
 A=D+A
@@ -244,7 +244,7 @@ M=M-D
 M=M+1
 
 // 26: push this 6
-@3
+@THIS
 D=M
 @6
 A=D+A
@@ -256,7 +256,7 @@ M=D
 M=M+1
 
 // 27: push this 6
-@3
+@THIS
 D=M
 @6
 A=D+A

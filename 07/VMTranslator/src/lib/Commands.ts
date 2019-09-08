@@ -12,6 +12,12 @@ const incStack = ['@SP', 'M=M+1'];
 const pop = ['@SP', 'M=M-1', 'A=M'];
 
 /**
+ * Push value stored in D to top of stack and increment stack.
+ * `*SP=D, SP++`
+ */
+const push = ['@SP', 'A=M', 'M=D', ...incStack];
+
+/**
  * Invokes command on top 2 values in stack.
  * 1st arg is 2nd value in stack, 2nd arg is 1st value in stack.
  * eg, M[SP-2] - M[SP-1]
@@ -49,11 +55,10 @@ const createConditionCommand = (() => {
 })();
 
 const memMap = {
-  [Segments.constant]: 9,
-  [Segments.local]: 1,
-  [Segments.argument]: 2,
-  [Segments.this]: 3,
-  [Segments.that]: 4,
+  [Segments.local]: 'LCL',
+  [Segments.argument]: 'ARG',
+  [Segments.this]: 'THIS',
+  [Segments.that]: 'THAT',
   [Segments.pointer]: 3,
   [Segments.temp]: 5
 };
@@ -64,7 +69,7 @@ export const pushCommand = ({ segment, index, baseName }: Token) => {
   }
   switch (segment) {
     case Segments.constant:
-      return [`@${index}`, 'D=A', '@SP', 'A=M', 'M=D', ...incStack].join('\n');
+      return [`@${index}`, 'D=A', ...push].join('\n');
     case Segments.local:
     case Segments.argument:
     case Segments.this:
@@ -75,32 +80,15 @@ export const pushCommand = ({ segment, index, baseName }: Token) => {
         `@${index}`,
         'A=D+A',
         'D=M',
-        '@SP',
-        'A=M',
-        'M=D',
-        ...incStack
+        ...push
       ].join('\n');
     }
     case Segments.pointer:
     case Segments.temp: {
-      return [
-        `@${memMap[segment] + index}`,
-        'D=M',
-        '@SP',
-        'A=M',
-        'M=D',
-        ...incStack
-      ].join('\n');
+      return [`@${memMap[segment] + index}`, 'D=M', ...push].join('\n');
     }
     case Segments.static: {
-      return [
-        `@${baseName}.${index}`,
-        'D=M',
-        '@SP',
-        'A=M',
-        'M=D',
-        ...incStack
-      ].join('\n');
+      return [`@${baseName}.${index}`, 'D=M', ...push].join('\n');
     }
     default:
       throw new Error('unrecognized segment: ' + segment);
@@ -120,16 +108,14 @@ export const popCommand = ({ segment, index, baseName }: Token) => {
     case Segments.this:
     case Segments.that: {
       return [
-        '@SP',
-        'M=M-1',
-        'A=M',
+        ...pop,
         'D=M',
         '@R13',
         'M=D',
         `@${memMap[segment]}`,
         'D=M',
         `@${index}`,
-        'D=A+D', // addr pop to
+        'D=A+D',
         '@R14',
         'M=D',
         '@R13',
@@ -141,24 +127,10 @@ export const popCommand = ({ segment, index, baseName }: Token) => {
     }
     case Segments.pointer:
     case Segments.temp: {
-      return [
-        '@SP',
-        'M=M-1',
-        'A=M',
-        'D=M',
-        `@${memMap[segment] + index}`,
-        'M=D'
-      ].join('\n');
+      return [...pop, 'D=M', `@${memMap[segment] + index}`, 'M=D'].join('\n');
     }
     case Segments.static: {
-      return [
-        '@SP',
-        'M=M-1',
-        'A=M',
-        'D=M',
-        `@${baseName}.${index}`,
-        'M=D'
-      ].join('\n');
+      return [...pop, 'D=M', `@${baseName}.${index}`, 'M=D'].join('\n');
     }
     default:
       throw new Error('unrecognized segment: ' + segment);

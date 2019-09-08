@@ -48,7 +48,7 @@ A=M
 D=M
 @R13
 M=D
-@3
+@THIS
 D=M
 @2
 D=A+D
@@ -76,7 +76,7 @@ A=M
 D=M
 @R13
 M=D
-@4
+@THAT
 D=M
 @6
 D=A+D
@@ -119,7 +119,7 @@ M=M+D
 M=M+1
 
 // 19: push this 2
-@3
+@THIS
 D=M
 @2
 A=D+A
@@ -143,7 +143,7 @@ M=M-D
 M=M+1
 
 // 21: push that 6
-@4
+@THAT
 D=M
 @6
 A=D+A
