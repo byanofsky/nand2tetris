@@ -42,12 +42,12 @@ const createConditionCommand = (() => {
       'D=M-D',
       '@SP',
       'A=M',
-      'M=-1',
+      'M=-1', // *SP=true
       `@${label}`,
       `D;${condition}`,
       '@SP',
       'A=M',
-      'M=0',
+      'M=0', // if not condition, *SP=false
       `(${label})`,
       ...incStack
     ].join('\n');
@@ -111,18 +111,18 @@ export const popCommand = ({ segment, index, baseName }: Token) => {
         ...pop,
         'D=M',
         '@R13',
-        'M=D',
+        'M=D', // R13=*SP, stores topmost stack value at R13
         `@${memMap[segment]}`,
         'D=M',
         `@${index}`,
         'D=A+D',
         '@R14',
-        'M=D',
+        'M=D', // R14=addr, stores address to pop to at R14
         '@R13',
         'D=M',
         '@R14',
         'A=M',
-        'M=D'
+        'M=D' // *R14=R13
       ].join('\n');
     }
     case Segments.pointer:
