@@ -1,0 +1,16 @@
+{
+  "name": "vmtranslator",
+  "version": "2.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": "./cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Brandon Yanofsky <byanofsky@me.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^12.7.4",
+    "typescript": "^3.6.2"
+  }
+}
