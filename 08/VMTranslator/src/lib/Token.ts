@@ -15,12 +15,15 @@ export enum Segments {
   static = 'static' //@xxx.i
 }
 
+export type Label = string;
+
 interface TokenProps {
   type: TokenType;
   baseName: string;
   originalText: string;
   lineNum: number;
   command: string | undefined;
+  // TODO: Rename segment -> arg1 and index -> arg2
   segment: string | undefined;
   index: string | undefined;
 }

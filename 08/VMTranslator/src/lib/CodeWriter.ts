@@ -11,7 +11,10 @@ import {
   ltCommand,
   andCommand,
   orCommand,
-  notCommand
+  notCommand,
+  labelCommand,
+  gotoCommond,
+  ifGotoCommand
 } from './Commands';
 
 export enum Commands {
@@ -25,7 +28,10 @@ export enum Commands {
   not = 'not',
   eq = 'eq',
   gt = 'gt',
-  lt = 'lt'
+  lt = 'lt',
+  label = 'label',
+  goto = 'goto',
+  ifGoto = 'if-goto'
 }
 
 const getAsmCode = (token: Token) => {
@@ -56,6 +62,12 @@ const getAsmCode = (token: Token) => {
       return gtCommand();
     case Commands.lt:
       return ltCommand();
+    case Commands.label:
+      return labelCommand(token);
+    case Commands.goto:
+      return gotoCommond(token);
+    case Commands.ifGoto:
+      return ifGotoCommand(token);
     default:
       throw new Error('unrecognized token command: ' + token.command);
   }

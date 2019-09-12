@@ -154,3 +154,16 @@ export const eqCommand = () => createConditionCommand('JEQ');
 export const gtCommand = () => createConditionCommand('JGT');
 
 export const ltCommand = () => createConditionCommand('JLT');
+
+export const labelCommand = (token: Token) => `(${token.segment})`;
+
+export const gotoCommond = (token: Token) =>
+  [`@${token.segment}`, '0;JMP'].join('\n');
+
+export const ifGotoCommand = (token: Token) =>
+  [
+    ...pop, // pop topmost value
+    'D=M',
+    `@${token.segment}`,
+    'D;JNE' // Jump if D != 0
+  ].join('\n');
