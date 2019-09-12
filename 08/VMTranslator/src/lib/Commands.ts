@@ -63,11 +63,15 @@ const memMap = {
   [Segments.temp]: 5
 };
 
-export const pushCommand = ({ segment, index, baseName }: Token) => {
-  if (index === undefined) {
-    throw new Error('push command with invalid index: ' + index);
+export const pushCommand = ({ arg1, arg2, baseName }: Token) => {
+  if (arg2 === undefined) {
+    throw new Error('push command with invalid index: ' + arg2);
   }
-  switch (segment) {
+  const index = Number(arg2);
+  if (Number.isNaN(index)) {
+    throw new Error('arg2 value must be a number: ' + arg2);
+  }
+  switch (arg1) {
     case Segments.constant:
       return [`@${index}`, 'D=A', ...push].join('\n');
     case Segments.local:
@@ -75,7 +79,7 @@ export const pushCommand = ({ segment, index, baseName }: Token) => {
     case Segments.this:
     case Segments.that: {
       return [
-        `@${memMap[segment]}`,
+        `@${memMap[arg1]}`,
         'D=M',
         `@${index}`,
         'A=D+A',
@@ -85,22 +89,26 @@ export const pushCommand = ({ segment, index, baseName }: Token) => {
     }
     case Segments.pointer:
     case Segments.temp: {
-      return [`@${memMap[segment] + index}`, 'D=M', ...push].join('\n');
+      return [`@${memMap[arg1] + index}`, 'D=M', ...push].join('\n');
     }
     case Segments.static: {
       return [`@${baseName}.${index}`, 'D=M', ...push].join('\n');
     }
     default:
-      throw new Error('unrecognized segment: ' + segment);
+      throw new Error('unrecognized segment: ' + arg1);
   }
 };
 
-export const popCommand = ({ segment, index, baseName }: Token) => {
-  if (index === undefined) {
-    throw new Error('push command with invalid index: ' + index);
+export const popCommand = ({ arg1, arg2, baseName }: Token) => {
+  if (arg2 === undefined) {
+    throw new Error('push command with invalid index: ' + arg2);
+  }
+  const index = Number(arg2);
+  if (Number.isNaN(index)) {
+    throw new Error('arg2 value must be a number: ' + arg2);
   }
 
-  switch (segment) {
+  switch (arg1) {
     case Segments.constant:
       throw new Error('cannot pop for segment: ' + Segments.constant);
     case Segments.local:
@@ -112,7 +120,7 @@ export const popCommand = ({ segment, index, baseName }: Token) => {
         'D=M',
         '@R13',
         'M=D', // R13=*SP, stores topmost stack value at R13
-        `@${memMap[segment]}`,
+        `@${memMap[arg1]}`,
         'D=M',
         `@${index}`,
         'D=A+D',
@@ -127,13 +135,13 @@ export const popCommand = ({ segment, index, baseName }: Token) => {
     }
     case Segments.pointer:
     case Segments.temp: {
-      return [...pop, 'D=M', `@${memMap[segment] + index}`, 'M=D'].join('\n');
+      return [...pop, 'D=M', `@${memMap[arg1] + index}`, 'M=D'].join('\n');
     }
     case Segments.static: {
       return [...pop, 'D=M', `@${baseName}.${index}`, 'M=D'].join('\n');
     }
     default:
-      throw new Error('unrecognized segment: ' + segment);
+      throw new Error('unrecognized segment: ' + arg1);
   }
 };
 
@@ -155,15 +163,15 @@ export const gtCommand = () => createConditionCommand('JGT');
 
 export const ltCommand = () => createConditionCommand('JLT');
 
-export const labelCommand = (token: Token) => `(${token.segment})`;
+export const labelCommand = (token: Token) => `(${token.arg1})`;
 
 export const gotoCommond = (token: Token) =>
-  [`@${token.segment}`, '0;JMP'].join('\n');
+  [`@${token.arg1}`, '0;JMP'].join('\n');
 
 export const ifGotoCommand = (token: Token) =>
   [
     ...pop, // pop topmost value
     'D=M',
-    `@${token.segment}`,
+    `@${token.arg1}`,
     'D;JNE' // Jump if D != 0
   ].join('\n');

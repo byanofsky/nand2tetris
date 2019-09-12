@@ -23,27 +23,27 @@ interface TokenProps {
   originalText: string;
   lineNum: number;
   command: string | undefined;
-  // TODO: Rename segment -> arg1 and index -> arg2
-  segment: string | undefined;
-  index: string | undefined;
+  arg1: string | undefined;
+  arg2: string | undefined;
 }
 
+// TODO: Can we have types for specific tokens?
 export default class Token {
   type: TokenType;
   baseName: string;
   originalText: string;
   lineNum: number;
   command: string | undefined;
-  segment: string | undefined;
-  index: number | undefined;
+  arg1: string | undefined;
+  arg2: string | undefined;
 
   constructor({
     type,
     baseName,
     originalText,
     command,
-    segment,
-    index,
+    arg1,
+    arg2,
     lineNum
   }: TokenProps) {
     this.type = type;
@@ -51,8 +51,8 @@ export default class Token {
     this.originalText = originalText;
     this.lineNum = lineNum;
     this.command = command;
-    this.segment = segment;
-    this.index = index === undefined ? undefined : Number(index);
+    this.arg1 = arg1;
+    this.arg2 = arg2;
   }
 
   isCommand() {
