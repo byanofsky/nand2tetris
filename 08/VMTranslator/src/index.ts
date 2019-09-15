@@ -22,19 +22,19 @@ const getAllFiles = (inputPath: string): string[] => {
 const getOutFilePath = (filePath: string) => {
   return path.format({
     dir: path.dirname(filePath),
-    base: `${path.basename(filePath, INPUT_EXT)}.asm`
+    base: `${filePath}/${path.basename(filePath, INPUT_EXT)}.asm`
   });
 };
 
 export default (inputPath: string) => {
   const parser = new Parser();
   const filePaths = getAllFiles(inputPath);
+  const outFilePath = getOutFilePath(inputPath);
+  const writeStream = createWriteStream(outFilePath);
+  const codeWriter = new CodeWriter(writeStream);
 
   filePaths.forEach(filePath => {
     const baseName = path.basename(filePath, INPUT_EXT);
-    const outFilePath = getOutFilePath(filePath);
-    const writeStream = createWriteStream(outFilePath);
-    const codeWriter = new CodeWriter(writeStream);
     const rl = readline.createInterface({
       input: createReadStream(filePath)
     });
