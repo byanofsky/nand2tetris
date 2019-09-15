@@ -15,7 +15,7 @@ export default class Parser {
     let command;
     let arg1;
     let arg2;
-    const trimmed = originalText.trim();
+    const trimmed = originalText.split('//')[0].trim();
     const type = getType(trimmed);
     if (type === TokenType.COMMAND) {
       [command, arg1, arg2] = trimmed.split(' ');

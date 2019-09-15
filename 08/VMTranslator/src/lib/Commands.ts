@@ -15,6 +15,7 @@ const pop = ['@SP', 'M=M-1', 'A=M'];
  * Push value stored in D to top of stack and increment stack.
  * `*SP=D, SP++`
  */
+// TODO: Pass arg to push as value to store
 const push = ['@SP', 'A=M', 'M=D', ...incStack];
 
 /**
@@ -163,15 +164,131 @@ export const gtCommand = () => createConditionCommand('JGT');
 
 export const ltCommand = () => createConditionCommand('JLT');
 
-export const labelCommand = (token: Token) => `(${token.arg1})`;
+export const labelCommand = (token: Token, curFunc: null | string) =>
+  `(${curFunc}$${token.arg1})`;
 
-export const gotoCommond = (token: Token) =>
-  [`@${token.arg1}`, '0;JMP'].join('\n');
+const goto = (label: string) => [`@${label}`, '0;JMP'];
 
-export const ifGotoCommand = (token: Token) =>
+export const gotoCommand = (token: Token, curFunc: null | string) =>
+  goto(`${curFunc}$${token.arg1}`).join('\n');
+
+export const ifGotoCommand = (token: Token, curFunc: null | string) =>
   [
     ...pop, // pop topmost value
     'D=M',
-    `@${token.arg1}`,
+    `@${curFunc}$${token.arg1}`,
     'D;JNE' // Jump if D != 0
   ].join('\n');
+
+const initLocalVar = ['D=0', ...push];
+
+export const functionCommand = (token: Token) => {
+  const n = Number(token.arg2);
+  if (Number.isNaN(n)) {
+    throw new Error('illegal arg2: ' + token.arg2);
+  }
+  const result = [`(${token.arg1})`];
+  for (let i = 0; i < n; i++) {
+    result.push(...initLocalVar);
+  }
+  return result.join('\n');
+};
+
+const call = (() => {
+  let i = -1;
+  return (f: string, n: number) => {
+    i++;
+    const returnAddressLabel = `${f}$RA${i}`;
+    return [
+      `@${returnAddressLabel}`,
+      'D=A',
+      ...push,
+      '@LCL',
+      'D=M',
+      ...push,
+      '@ARG',
+      'D=M',
+      ...push,
+      '@THIS',
+      'D=M',
+      ...push,
+      '@THAT',
+      'D=M',
+      ...push,
+      `@${Number(n) + 5}`,
+      'D=A',
+      '@SP',
+      'D=M-D',
+      '@ARG',
+      'M=D',
+      '@SP',
+      'D=M',
+      '@LCL',
+      'M=D',
+      // TODO: Extract goto
+      ...goto(f || ''),
+      `(${returnAddressLabel})`
+    ];
+  };
+})();
+
+export const callCommand = ({ arg1: f, arg2: n }: Token) =>
+  call(f || '', Number(n)).join('\n');
+
+export const returnCommand = () =>
+  [
+    '@LCL',
+    'D=M',
+    '@R13',
+    'M=D', // FRAME=LCL
+    '@5',
+    'D=A',
+    '@R13',
+    'A=M-D',
+    'D=M',
+    '@R14',
+    'M=D', // RET=*(FRAME-5),
+    ...pop,
+    'D=M',
+    '@ARG',
+    'A=M',
+    'M=D', // *ARG=pop()
+    '@ARG',
+    'D=M',
+    '@SP',
+    'M=D+1', // SP=ARG+1
+    '@1',
+    'D=A', // D=1
+    '@R13',
+    'A=M-D', // A=FRAME-1
+    'D=M', // D=*(FRAME-1)
+    '@THAT',
+    'M=D', // THAT=*(FRAME-1)
+    '@2',
+    'D=A', // D=2
+    '@R13',
+    'A=M-D', // A=FRAME-2
+    'D=M', // D=*(FRAME-2)
+    '@THIS',
+    'M=D', // THIS=*(FRAME-2)
+    '@3',
+    'D=A', // D=3
+    '@R13',
+    'A=M-D', // A=FRAME-3
+    'D=M', // D=*(FRAME-3)
+    '@ARG',
+    'M=D', // ARG=*(FRAME-3)
+    '@4',
+    'D=A', // D=4
+    '@R13',
+    'A=M-D', // A=FRAME-4
+    'D=M', // D=*(FRAME-4)
+    '@LCL',
+    'M=D', // LCL=*(FRAME-4)
+    '@R14',
+    'A=M', // A=RET
+    '0;JMP' // goto RET
+  ].join('\n');
+
+export const initCommand = () =>
+  ['@256', 'D=A', '@SP', 'M=D', ...call('Sys.init', 0)].join('\n');
