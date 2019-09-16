@@ -697,9 +697,9 @@ M=D
 (Class2.get$RA4)
 
 // 19: label WHILE
-(Class2.get$WHILE)
+(Sys.init$WHILE)
 
 // 20: goto WHILE
-@Class2.get$WHILE
+@Sys.init$WHILE
 0;JMP
 

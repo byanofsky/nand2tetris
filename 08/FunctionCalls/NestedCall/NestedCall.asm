@@ -1,3 +1,56 @@
+@256
+D=A
+@SP
+M=D
+@Sys.init$RA0
+D=A
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@LCL
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@ARG
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THIS
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@THAT
+D=M
+@SP
+A=M
+M=D
+@SP
+M=M+1
+@5
+D=A
+@SP
+D=M-D
+@ARG
+M=D
+@SP
+D=M
+@LCL
+M=D
+@Sys.init
+0;JMP
+(Sys.init$RA0)
+
 // 8: function Sys.init 0
 (Sys.init)
 
@@ -36,7 +89,7 @@ D=M
 M=D
 
 // 13: call Sys.main 0
-@Sys.main$RA0
+@Sys.main$RA1
 D=A
 @SP
 A=M
@@ -83,7 +136,7 @@ D=M
 M=D
 @Sys.main
 0;JMP
-(Sys.main$RA0)
+(Sys.main$RA1)
 
 // 14: pop temp 1
 @SP
@@ -94,10 +147,10 @@ D=M
 M=D
 
 // 15: label LOOP
-(Sys.main$LOOP)
+(Sys.init$LOOP)
 
 // 16: goto LOOP
-@Sys.main$LOOP
+@Sys.init$LOOP
 0;JMP
 
 // 26: function Sys.main 5
@@ -261,7 +314,7 @@ M=D
 M=M+1
 
 // 38: call Sys.add12 1
-@Sys.add12$RA1
+@Sys.add12$RA2
 D=A
 @SP
 A=M
@@ -308,7 +361,7 @@ D=M
 M=D
 @Sys.add12
 0;JMP
-(Sys.add12$RA1)
+(Sys.add12$RA2)
 
 // 39: pop temp 0
 @SP
