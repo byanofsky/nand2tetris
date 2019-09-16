@@ -34,14 +34,22 @@ const push = ['@SP', 'A=M', 'M=D', ...incStack];
  * 1st arg is 2nd value in stack, 2nd arg is 1st value in stack.
  * eg, M[SP-2] - M[SP-1]
  */
-const createBinaryCommand = (command: string) =>
-  [...pop, 'D=M', ...pop, `M=M${command}D`, ...incStack].join('\n');
+const createBinaryCommand = (command: string) => [
+  ...pop,
+  'D=M',
+  ...pop,
+  `M=M${command}D`,
+  ...incStack
+];
 
 /**
  * Invokes command on top value in stack.
  */
-const createUnaryCommand = (command: string) =>
-  [...pop, `M=${command}M`, ...incStack].join('\n');
+const createUnaryCommand = (command: string) => [
+  ...pop,
+  `M=${command}M`,
+  ...incStack
+];
 
 const createConditionCommand = (() => {
   let i = 0;
@@ -62,7 +70,7 @@ const createConditionCommand = (() => {
       'M=0', // if not condition, *SP=false
       `(${label})`,
       ...incStack
-    ].join('\n');
+    ];
   };
 })();
 
@@ -88,26 +96,19 @@ export const pushCommand = (token: Token) => {
   }
   switch (arg1) {
     case Segments.constant:
-      return [`@${index}`, 'D=A', ...push].join('\n');
+      return [`@${index}`, 'D=A', ...push];
     case Segments.local:
     case Segments.argument:
     case Segments.this:
     case Segments.that: {
-      return [
-        `@${memMap[arg1]}`,
-        'D=M',
-        `@${index}`,
-        'A=D+A',
-        'D=M',
-        ...push
-      ].join('\n');
+      return [`@${memMap[arg1]}`, 'D=M', `@${index}`, 'A=D+A', 'D=M', ...push];
     }
     case Segments.pointer:
     case Segments.temp: {
-      return [`@${memMap[arg1] + index}`, 'D=M', ...push].join('\n');
+      return [`@${memMap[arg1] + index}`, 'D=M', ...push];
     }
     case Segments.static: {
-      return [`@${baseName}.${index}`, 'D=M', ...push].join('\n');
+      return [`@${baseName}.${index}`, 'D=M', ...push];
     }
     default:
       throw new Error('unrecognized segment: ' + arg1);
@@ -149,14 +150,14 @@ export const popCommand = (token: Token) => {
         '@R14',
         'A=M',
         'M=D' // *R14=R13
-      ].join('\n');
+      ];
     }
     case Segments.pointer:
     case Segments.temp: {
-      return [...pop, 'D=M', `@${memMap[arg1] + index}`, 'M=D'].join('\n');
+      return [...pop, 'D=M', `@${memMap[arg1] + index}`, 'M=D'];
     }
     case Segments.static: {
-      return [...pop, 'D=M', `@${baseName}.${index}`, 'M=D'].join('\n');
+      return [...pop, 'D=M', `@${baseName}.${index}`, 'M=D'];
     }
     default:
       throw new Error('unrecognized segment: ' + arg1);
@@ -181,21 +182,21 @@ export const gtCommand = () => createConditionCommand('JGT');
 
 export const ltCommand = () => createConditionCommand('JLT');
 
-export const labelCommand = (token: Token, curFunc: null | string) =>
-  `(${curFunc}$${token.getArg1()})`;
+export const labelCommand = (token: Token, curFunc: null | string) => [
+  `(${curFunc}$${token.getArg1()})`
+];
 
 const goto = (label: string) => [`@${label}`, '0;JMP'];
 
 export const gotoCommand = (token: Token, curFunc: null | string) =>
-  goto(`${curFunc}$${token.getArg1()}`).join('\n');
+  goto(`${curFunc}$${token.getArg1()}`);
 
-export const ifGotoCommand = (token: Token, curFunc: null | string) =>
-  [
-    ...pop, // pop topmost value
-    'D=M',
-    `@${curFunc}$${token.getArg1()}`,
-    'D;JNE' // Jump if D != 0
-  ].join('\n');
+export const ifGotoCommand = (token: Token, curFunc: null | string) => [
+  ...pop, // pop topmost value
+  'D=M',
+  `@${curFunc}$${token.getArg1()}`,
+  'D;JNE' // Jump if D != 0
+];
 
 const initLocalVar = ['D=0', ...push];
 
@@ -204,7 +205,7 @@ export const functionCommand = (token: Token) => {
   for (let i = 0; i < token.getArg2(); i++) {
     result.push(...initLocalVar);
   }
-  return result.join('\n');
+  return result;
 };
 
 const call = (() => {
@@ -246,62 +247,61 @@ const call = (() => {
 })();
 
 export const callCommand = (token: Token) =>
-  call(token.getArg1(), token.getArg2()).join('\n');
+  call(token.getArg1(), token.getArg2());
 
-export const returnCommand = () =>
-  [
-    '@LCL',
-    'D=M',
-    '@R13',
-    'M=D', // FRAME=LCL
-    '@5',
-    'D=A',
-    '@R13',
-    'A=M-D',
-    'D=M',
-    '@R14',
-    'M=D', // RET=*(FRAME-5),
-    ...pop,
-    'D=M',
-    '@ARG',
-    'A=M',
-    'M=D', // *ARG=pop()
-    '@ARG',
-    'D=M',
-    '@SP',
-    'M=D+1', // SP=ARG+1
-    '@1',
-    'D=A', // D=1
-    '@R13',
-    'A=M-D', // A=FRAME-1
-    'D=M', // D=*(FRAME-1)
-    '@THAT',
-    'M=D', // THAT=*(FRAME-1)
-    '@2',
-    'D=A', // D=2
-    '@R13',
-    'A=M-D', // A=FRAME-2
-    'D=M', // D=*(FRAME-2)
-    '@THIS',
-    'M=D', // THIS=*(FRAME-2)
-    '@3',
-    'D=A', // D=3
-    '@R13',
-    'A=M-D', // A=FRAME-3
-    'D=M', // D=*(FRAME-3)
-    '@ARG',
-    'M=D', // ARG=*(FRAME-3)
-    '@4',
-    'D=A', // D=4
-    '@R13',
-    'A=M-D', // A=FRAME-4
-    'D=M', // D=*(FRAME-4)
-    '@LCL',
-    'M=D', // LCL=*(FRAME-4)
-    '@R14',
-    'A=M', // A=RET
-    '0;JMP' // goto RET
-  ].join('\n');
+export const returnCommand = () => [
+  '@LCL',
+  'D=M',
+  '@R13',
+  'M=D', // FRAME=LCL
+  '@5',
+  'D=A',
+  '@R13',
+  'A=M-D',
+  'D=M',
+  '@R14',
+  'M=D', // RET=*(FRAME-5),
+  ...pop,
+  'D=M',
+  '@ARG',
+  'A=M',
+  'M=D', // *ARG=pop()
+  '@ARG',
+  'D=M',
+  '@SP',
+  'M=D+1', // SP=ARG+1
+  '@1',
+  'D=A', // D=1
+  '@R13',
+  'A=M-D', // A=FRAME-1
+  'D=M', // D=*(FRAME-1)
+  '@THAT',
+  'M=D', // THAT=*(FRAME-1)
+  '@2',
+  'D=A', // D=2
+  '@R13',
+  'A=M-D', // A=FRAME-2
+  'D=M', // D=*(FRAME-2)
+  '@THIS',
+  'M=D', // THIS=*(FRAME-2)
+  '@3',
+  'D=A', // D=3
+  '@R13',
+  'A=M-D', // A=FRAME-3
+  'D=M', // D=*(FRAME-3)
+  '@ARG',
+  'M=D', // ARG=*(FRAME-3)
+  '@4',
+  'D=A', // D=4
+  '@R13',
+  'A=M-D', // A=FRAME-4
+  'D=M', // D=*(FRAME-4)
+  '@LCL',
+  'M=D', // LCL=*(FRAME-4)
+  '@R14',
+  'A=M', // A=RET
+  '0;JMP' // goto RET
+];
 
 export const initCommand = [
   '@256',

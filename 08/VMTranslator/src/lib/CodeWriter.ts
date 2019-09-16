@@ -60,7 +60,7 @@ export default class CodeWriter {
     }
     const source = `// ${token.getLineNum()}: ${token.getOriginalText()}`;
     const code = this.getAsmCode(token);
-    const output = [source, code, '\n'];
+    const output = [source, ...code, '\n'];
     this.writeOut(output);
   }
 
@@ -73,7 +73,7 @@ export default class CodeWriter {
     this.writeOut([...initCommand, '\n']);
   }
 
-  private getAsmCode = (token: Token) => {
+  private getAsmCode = (token: Token): Array<string> => {
     if (!token.isCommand()) {
       throw new Error('Cannot get ASM code for token type: ' + token.getType());
     }
