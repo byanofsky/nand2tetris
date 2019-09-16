@@ -42,31 +42,38 @@ export enum Commands {
 }
 
 export default class CodeWriter {
-  out: WriteStream;
-  curFunc: string | null;
+  private out: WriteStream;
+  private curFunc: string | null;
 
   constructor(out: WriteStream) {
     this.out = out;
     this.curFunc = null;
-    this.createInit();
+    this.outputInitCommand();
   }
-
-  createInit = () => {
-    const output = [initCommand(), '\n'].join('\n');
-    this.out.write(output);
-  };
 
   translate(token: Token) {
     if (!token.isCommand()) {
       return;
     }
+    if (token.getCommand() === Commands.function) {
+      this.curFunc = token.getArg1();
+    }
     const source = `// ${token.getLineNum()}: ${token.getOriginalText()}`;
     const code = this.getAsmCode(token);
-    const output = [source, code, '\n'].join('\n');
+    const output = [source, code, '\n'];
+    this.writeOut(output);
+  }
+
+  private writeOut(commands: string[]) {
+    const output = commands.join('\n');
     this.out.write(output);
   }
 
-  getAsmCode = (token: Token) => {
+  private outputInitCommand() {
+    this.writeOut([...initCommand, '\n']);
+  }
+
+  private getAsmCode = (token: Token) => {
     if (!token.isCommand()) {
       throw new Error('Cannot get ASM code for token type: ' + token.getType());
     }
@@ -104,10 +111,8 @@ export default class CodeWriter {
       case Commands.function:
         return functionCommand(token);
       case Commands.call:
-        this.curFunc = token.getArg1();
         return callCommand(token);
       case Commands.return:
-        this.curFunc = null;
         return returnCommand();
       default:
         throw new Error('unrecognized token command: ' + command);

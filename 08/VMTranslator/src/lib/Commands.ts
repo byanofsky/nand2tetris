@@ -303,5 +303,10 @@ export const returnCommand = () =>
     '0;JMP' // goto RET
   ].join('\n');
 
-export const initCommand = () =>
-  ['@256', 'D=A', '@SP', 'M=D', ...call('Sys.init', 0)].join('\n');
+export const initCommand = [
+  '@256',
+  'D=A',
+  '@SP',
+  'M=D',
+  ...call('Sys.init', 0)
+];
