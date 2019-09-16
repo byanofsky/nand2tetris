@@ -1,4 +1,15 @@
-import Token, { Segments } from './Token';
+import Token from './Token';
+
+enum Segments {
+  constant = 'constant',
+  local = 'local', //1
+  argument = 'argument', //2
+  this = 'this', //3
+  that = 'that', //4
+  pointer = 'pointer', //3-4
+  temp = 'temp', //5-12
+  static = 'static' //@xxx.i
+}
 
 /**
  * Increments stack pointer.
@@ -64,7 +75,10 @@ const memMap = {
   [Segments.temp]: 5
 };
 
-export const pushCommand = ({ arg1, arg2, baseName }: Token) => {
+export const pushCommand = (token: Token) => {
+  const baseName = token.getBaseName();
+  const arg1 = token.getArg1();
+  const arg2 = token.getArg2();
   if (arg2 === undefined) {
     throw new Error('push command with invalid index: ' + arg2);
   }
@@ -100,7 +114,10 @@ export const pushCommand = ({ arg1, arg2, baseName }: Token) => {
   }
 };
 
-export const popCommand = ({ arg1, arg2, baseName }: Token) => {
+export const popCommand = (token: Token) => {
+  const arg1 = token.getArg1();
+  const arg2 = token.getArg2();
+  const baseName = token.getBaseName();
   if (arg2 === undefined) {
     throw new Error('push command with invalid index: ' + arg2);
   }
@@ -165,30 +182,26 @@ export const gtCommand = () => createConditionCommand('JGT');
 export const ltCommand = () => createConditionCommand('JLT');
 
 export const labelCommand = (token: Token, curFunc: null | string) =>
-  `(${curFunc}$${token.arg1})`;
+  `(${curFunc}$${token.getArg1()})`;
 
 const goto = (label: string) => [`@${label}`, '0;JMP'];
 
 export const gotoCommand = (token: Token, curFunc: null | string) =>
-  goto(`${curFunc}$${token.arg1}`).join('\n');
+  goto(`${curFunc}$${token.getArg1()}`).join('\n');
 
 export const ifGotoCommand = (token: Token, curFunc: null | string) =>
   [
     ...pop, // pop topmost value
     'D=M',
-    `@${curFunc}$${token.arg1}`,
+    `@${curFunc}$${token.getArg1()}`,
     'D;JNE' // Jump if D != 0
   ].join('\n');
 
 const initLocalVar = ['D=0', ...push];
 
 export const functionCommand = (token: Token) => {
-  const n = Number(token.arg2);
-  if (Number.isNaN(n)) {
-    throw new Error('illegal arg2: ' + token.arg2);
-  }
-  const result = [`(${token.arg1})`];
-  for (let i = 0; i < n; i++) {
+  const result = [`(${token.getArg1()})`];
+  for (let i = 0; i < token.getArg2(); i++) {
     result.push(...initLocalVar);
   }
   return result.join('\n');
@@ -232,8 +245,8 @@ const call = (() => {
   };
 })();
 
-export const callCommand = ({ arg1: f, arg2: n }: Token) =>
-  call(f || '', Number(n)).join('\n');
+export const callCommand = (token: Token) =>
+  call(token.getArg1(), token.getArg2()).join('\n');
 
 export const returnCommand = () =>
   [

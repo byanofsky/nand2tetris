@@ -60,7 +60,7 @@ export default class CodeWriter {
     if (!token.isCommand()) {
       return;
     }
-    const source = `// ${token.lineNum}: ${token.originalText}`;
+    const source = `// ${token.getLineNum()}: ${token.getOriginalText()}`;
     const code = this.getAsmCode(token);
     const output = [source, code, '\n'].join('\n');
     this.out.write(output);
@@ -68,10 +68,11 @@ export default class CodeWriter {
 
   getAsmCode = (token: Token) => {
     if (!token.isCommand()) {
-      throw new Error('Cannot get ASM code for token type: ' + token.type);
+      throw new Error('Cannot get ASM code for token type: ' + token.getType());
     }
 
-    switch (token.command) {
+    const command = token.getCommand();
+    switch (command) {
       case Commands.push:
         return pushCommand(token);
       case Commands.pop:
@@ -103,13 +104,13 @@ export default class CodeWriter {
       case Commands.function:
         return functionCommand(token);
       case Commands.call:
-        this.curFunc = token.arg1 || '';
+        this.curFunc = token.getArg1();
         return callCommand(token);
       case Commands.return:
         this.curFunc = null;
         return returnCommand();
       default:
-        throw new Error('unrecognized token command: ' + token.command);
+        throw new Error('unrecognized token command: ' + command);
     }
   };
 }
