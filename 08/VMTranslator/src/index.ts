@@ -6,9 +6,11 @@ import CodeWriter from './lib/CodeWriter';
 
 const INPUT_EXT = '.vm';
 
+const isVmFile = (filePath: string) => path.extname(filePath) === INPUT_EXT;
+
 const getAllFiles = (inputPath: string): string[] => {
   if (statSync(inputPath).isFile()) {
-    if (path.extname(inputPath) === INPUT_EXT) {
+    if (isVmFile(inputPath)) {
       return [inputPath];
     }
     return [];
@@ -20,10 +22,13 @@ const getAllFiles = (inputPath: string): string[] => {
 };
 
 const getOutFilePath = (filePath: string) => {
-  return path.format({
-    dir: path.dirname(filePath),
-    base: `${filePath}/${path.basename(filePath, INPUT_EXT)}.asm`
-  });
+  const dir = path.dirname(filePath);
+  const basename = path.basename(filePath, INPUT_EXT);
+  const base = `${basename}.asm`;
+  if (statSync(filePath).isDirectory()) {
+    return path.join(dir, basename, base);
+  }
+  return path.join(dir, base);
 };
 
 export default (inputPath: string) => {
