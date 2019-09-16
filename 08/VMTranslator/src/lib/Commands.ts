@@ -1,16 +1,5 @@
 import Token from './Token';
 
-enum Segments {
-  constant = 'constant',
-  local = 'local', //1
-  argument = 'argument', //2
-  this = 'this', //3
-  that = 'that', //4
-  pointer = 'pointer', //3-4
-  temp = 'temp', //5-12
-  static = 'static' //@xxx.i
-}
-
 /**
  * Increments stack pointer.
  */
@@ -26,8 +15,9 @@ const pop = ['@SP', 'M=M-1', 'A=M'];
  * Push value stored in D to top of stack and increment stack.
  * `*SP=D, SP++`
  */
-// TODO: Pass arg to push as value to store
 const push = ['@SP', 'A=M', 'M=D', ...incStack];
+
+const goto = (label: string) => [`@${label}`, '0;JMP'];
 
 /**
  * Invokes command on top 2 values in stack.
@@ -51,28 +41,73 @@ const createUnaryCommand = (command: string) => [
   ...incStack
 ];
 
-const createConditionCommand = (() => {
-  let i = 0;
-  return (condition: 'JEQ' | 'JGT' | 'JLT') => {
-    const label = `L${i++}`;
-    return [
-      ...pop,
-      'D=M',
-      ...pop,
-      'D=M-D',
-      '@SP',
-      'A=M',
-      'M=-1', // *SP=true
-      `@${label}`,
-      `D;${condition}`,
-      '@SP',
-      'A=M',
-      'M=0', // if not condition, *SP=false
-      `(${label})`,
-      ...incStack
-    ];
-  };
-})();
+let conditionLabelI = 0;
+const createConditionCommand = (condition: 'JEQ' | 'JGT' | 'JLT') => {
+  const label = `L${conditionLabelI++}`;
+  return [
+    ...pop,
+    'D=M',
+    ...pop,
+    'D=M-D',
+    '@SP',
+    'A=M',
+    'M=-1', // *SP=true
+    `@${label}`,
+    `D;${condition}`,
+    '@SP',
+    'A=M',
+    'M=0', // if not condition, *SP=false
+    `(${label})`,
+    ...incStack
+  ];
+};
+
+let callI = 0;
+const call = (f: string, n: number) => {
+  const returnAddressLabel = `${f}$RA${callI++}`;
+  return [
+    `@${returnAddressLabel}`,
+    'D=A',
+    ...push,
+    '@LCL',
+    'D=M',
+    ...push,
+    '@ARG',
+    'D=M',
+    ...push,
+    '@THIS',
+    'D=M',
+    ...push,
+    '@THAT',
+    'D=M',
+    ...push,
+    `@${Number(n) + 5}`,
+    'D=A',
+    '@SP',
+    'D=M-D',
+    '@ARG',
+    'M=D',
+    '@SP',
+    'D=M',
+    '@LCL',
+    'M=D',
+    ...goto(f),
+    `(${returnAddressLabel})`
+  ];
+};
+
+const initLocalVar = ['D=0', ...push];
+
+enum Segments {
+  constant = 'constant',
+  local = 'local', //1
+  argument = 'argument', //2
+  this = 'this', //3
+  that = 'that', //4
+  pointer = 'pointer', //3-4
+  temp = 'temp', //5-12
+  static = 'static' //@xxx.i
+}
 
 const memMap = {
   [Segments.local]: 'LCL',
@@ -83,51 +118,51 @@ const memMap = {
   [Segments.temp]: 5
 };
 
+export const initCommand = [
+  '@256',
+  'D=A',
+  '@SP',
+  'M=D',
+  ...call('Sys.init', 0)
+];
+
 export const pushCommand = (token: Token) => {
   const baseName = token.getBaseName();
-  const arg1 = token.getArg1();
-  const arg2 = token.getArg2();
-  if (arg2 === undefined) {
-    throw new Error('push command with invalid index: ' + arg2);
-  }
-  const index = Number(arg2);
-  if (Number.isNaN(index)) {
-    throw new Error('arg2 value must be a number: ' + arg2);
-  }
-  switch (arg1) {
+  const segment = token.getArg1();
+  const index = token.getArg2();
+  switch (segment) {
     case Segments.constant:
       return [`@${index}`, 'D=A', ...push];
     case Segments.local:
     case Segments.argument:
     case Segments.this:
     case Segments.that: {
-      return [`@${memMap[arg1]}`, 'D=M', `@${index}`, 'A=D+A', 'D=M', ...push];
+      return [
+        `@${memMap[segment]}`,
+        'D=M',
+        `@${index}`,
+        'A=D+A',
+        'D=M',
+        ...push
+      ];
     }
     case Segments.pointer:
     case Segments.temp: {
-      return [`@${memMap[arg1] + index}`, 'D=M', ...push];
+      return [`@${memMap[segment] + index}`, 'D=M', ...push];
     }
     case Segments.static: {
       return [`@${baseName}.${index}`, 'D=M', ...push];
     }
     default:
-      throw new Error('unrecognized segment: ' + arg1);
+      throw new Error('unrecognized segment: ' + segment);
   }
 };
 
 export const popCommand = (token: Token) => {
-  const arg1 = token.getArg1();
-  const arg2 = token.getArg2();
+  const segment = token.getArg1();
+  const index = token.getArg2();
   const baseName = token.getBaseName();
-  if (arg2 === undefined) {
-    throw new Error('push command with invalid index: ' + arg2);
-  }
-  const index = Number(arg2);
-  if (Number.isNaN(index)) {
-    throw new Error('arg2 value must be a number: ' + arg2);
-  }
-
-  switch (arg1) {
+  switch (segment) {
     case Segments.constant:
       throw new Error('cannot pop for segment: ' + Segments.constant);
     case Segments.local:
@@ -139,7 +174,7 @@ export const popCommand = (token: Token) => {
         'D=M',
         '@R13',
         'M=D', // R13=*SP, stores topmost stack value at R13
-        `@${memMap[arg1]}`,
+        `@${memMap[segment]}`,
         'D=M',
         `@${index}`,
         'D=A+D',
@@ -154,13 +189,13 @@ export const popCommand = (token: Token) => {
     }
     case Segments.pointer:
     case Segments.temp: {
-      return [...pop, 'D=M', `@${memMap[arg1] + index}`, 'M=D'];
+      return [...pop, 'D=M', `@${memMap[segment] + index}`, 'M=D'];
     }
     case Segments.static: {
       return [...pop, 'D=M', `@${baseName}.${index}`, 'M=D'];
     }
     default:
-      throw new Error('unrecognized segment: ' + arg1);
+      throw new Error('unrecognized segment: ' + segment);
   }
 };
 
@@ -186,8 +221,6 @@ export const labelCommand = (token: Token, curFunc: null | string) => [
   `(${curFunc}$${token.getArg1()})`
 ];
 
-const goto = (label: string) => [`@${label}`, '0;JMP'];
-
 export const gotoCommand = (token: Token, curFunc: null | string) =>
   goto(`${curFunc}$${token.getArg1()}`);
 
@@ -198,8 +231,6 @@ export const ifGotoCommand = (token: Token, curFunc: null | string) => [
   'D;JNE' // Jump if D != 0
 ];
 
-const initLocalVar = ['D=0', ...push];
-
 export const functionCommand = (token: Token) => {
   const result = [`(${token.getArg1()})`];
   for (let i = 0; i < token.getArg2(); i++) {
@@ -207,44 +238,6 @@ export const functionCommand = (token: Token) => {
   }
   return result;
 };
-
-const call = (() => {
-  let i = -1;
-  return (f: string, n: number) => {
-    i++;
-    const returnAddressLabel = `${f}$RA${i}`;
-    return [
-      `@${returnAddressLabel}`,
-      'D=A',
-      ...push,
-      '@LCL',
-      'D=M',
-      ...push,
-      '@ARG',
-      'D=M',
-      ...push,
-      '@THIS',
-      'D=M',
-      ...push,
-      '@THAT',
-      'D=M',
-      ...push,
-      `@${Number(n) + 5}`,
-      'D=A',
-      '@SP',
-      'D=M-D',
-      '@ARG',
-      'M=D',
-      '@SP',
-      'D=M',
-      '@LCL',
-      'M=D',
-      // TODO: Extract goto
-      ...goto(f || ''),
-      `(${returnAddressLabel})`
-    ];
-  };
-})();
 
 export const callCommand = (token: Token) =>
   call(token.getArg1(), token.getArg2());
@@ -257,7 +250,7 @@ export const returnCommand = () => [
   '@5',
   'D=A',
   '@R13',
-  'A=M-D',
+  'A=M-D', // A=FRAME-5
   'D=M',
   '@R14',
   'M=D', // RET=*(FRAME-5),
@@ -301,12 +294,4 @@ export const returnCommand = () => [
   '@R14',
   'A=M', // A=RET
   '0;JMP' // goto RET
-];
-
-export const initCommand = [
-  '@256',
-  'D=A',
-  '@SP',
-  'M=D',
-  ...call('Sys.init', 0)
 ];
