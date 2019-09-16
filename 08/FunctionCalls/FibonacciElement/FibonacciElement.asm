@@ -101,15 +101,15 @@ M=M+1
 M=M-1
 A=M
 D=M
-@null$IF_TRUE
+@Main.fibonacci$IF_TRUE
 D;JNE
 
 // 16: goto IF_FALSE
-@null$IF_FALSE
+@Main.fibonacci$IF_FALSE
 0;JMP
 
 // 17: label IF_TRUE          // if n<2, return n
-(null$IF_TRUE)
+(Main.fibonacci$IF_TRUE)
 
 // 18: push argument 0        
 @ARG
@@ -179,7 +179,7 @@ A=M
 0;JMP
 
 // 20: label IF_FALSE         // if n>=2, returns fib(n-2)+fib(n-1)
-(null$IF_FALSE)
+(Main.fibonacci$IF_FALSE)
 
 // 21: push argument 0
 @ARG
@@ -477,9 +477,9 @@ M=D
 (Main.fibonacci$RA3)
 
 // 14: label WHILE
-(Main.fibonacci$WHILE)
+(Sys.init$WHILE)
 
 // 15: goto WHILE              // loops infinitely
-@Main.fibonacci$WHILE
+@Sys.init$WHILE
 0;JMP
 
