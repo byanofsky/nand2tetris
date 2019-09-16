@@ -12,14 +12,9 @@ const getType = (line: string) => {
 
 export default class Parser {
   parseLine(baseName: string, originalText: string, lineNum: number) {
-    let command;
-    let arg1;
-    let arg2;
-    const trimmed = originalText.split('//')[0].trim();
-    const type = getType(trimmed);
-    if (type === TokenType.COMMAND) {
-      [command, arg1, arg2] = trimmed.split(' ');
-    }
+    const line = originalText.split('//')[0].trim();
+    const type = getType(line);
+    const [command, arg1, arg2] = line.split(' ');
     return new Token({
       type,
       baseName,
