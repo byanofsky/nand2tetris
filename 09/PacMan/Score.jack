@@ -1,0 +1,28 @@
+class Score {
+  field int score;
+  field Dots dots;
+
+  constructor Score new(Dots d) {
+    let score = 0;
+    let dots = d;
+    return this;
+  }
+
+  method void next() {
+    let score = dots.getNCaptured();
+    do draw();
+    return;
+  }
+
+  method void draw() {
+    do Output.moveCursor(0, 0);
+    do Output.printInt(score);
+    return;
+  }
+
+  /** Disposes this Score. */
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+}

@@ -1,0 +1,57 @@
+class Game {
+  field Score score;
+  field PacMan pacman;
+  field Dots dots;
+
+  constructor Game new() {
+    let pacman = PacMan.new();
+    let dots = Dots.new();
+    let score = Score.new(dots);
+    return this;
+  }
+
+  // TODO: Separate into next and draw functions
+  method void next() {
+    do dots.next();
+    do pacman.next();
+    do markCaptured();
+    do score.next();
+    return;
+  }
+
+  method void markCaptured() {
+    do dots.setCaptured(pacman);
+    return;
+  }
+
+  method void reset() {
+    do pacman.reset();
+    return;
+  }
+
+  method void handleKey(int key) {
+    if (key = 130) {
+      do pacman.setDir(3); // left
+    }
+    if (key = 131) {
+      do pacman.setDir(1); // up
+    }
+    if (key = 132) {
+      do pacman.setDir(4); // right
+    }
+    if (key = 133) {
+      do pacman.setDir(2); // down
+    }
+    if (key = 81) {
+      do pacman.reset();
+    }
+
+    return;
+  }
+
+  /** Disposes this Game. */
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+}

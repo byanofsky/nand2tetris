@@ -1,0 +1,40 @@
+class Dot {
+  field int x, y;
+  field boolean isCaptured;
+
+  constructor Dot new(int ix, int iy) {
+    let x = ix;
+    let y = iy;
+    let isCaptured = false;
+    return this;
+  }
+
+  method void draw() {
+    do Screen.setColor(~isCaptured);
+    do Screen.drawRectangle(x, y, x+3, y+3);
+    return;
+  }
+
+  method void setCaptured() {
+    let isCaptured = true;
+    return;
+  }
+
+  method boolean getIsCaptured() {
+    return isCaptured;
+  }
+
+  method int getX() {
+    return x;
+  }
+
+  method int getY() {
+    return y;
+  }
+
+  /** Disposes this Dot. */
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+}

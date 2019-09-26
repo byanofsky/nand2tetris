@@ -1,0 +1,61 @@
+class Dots {
+  field Array dots;
+  field int nCaptured;
+
+  constructor Dots new() {
+    let dots = Array.new(10);
+    let dots[0] = Dot.new(240, 35);
+    let dots[1] = Dot.new(111, 18);
+    let dots[2] = Dot.new(84, 252);
+    let dots[3] = Dot.new(148, 151);
+    let dots[4] = Dot.new(493, 7);
+    let dots[5] = Dot.new(21, 94);
+    let dots[6] = Dot.new(353, 172);
+    let dots[7] = Dot.new(124, 70);
+    let dots[8] = Dot.new(195, 186);
+    let dots[9] = Dot.new(444, 85);
+    return this;
+  }
+
+  method void next() {
+    do draw();
+    return;
+  }
+
+  method void draw() {
+    var int i;
+    var Dot cur;
+    let i = 0;
+    while (i < 10) {
+      let cur = dots[i];
+      do cur.draw();
+      let i = i + 1;
+    }
+    return;
+  }
+
+  method int getNCaptured() {
+    return nCaptured;
+  }
+
+  method void setCaptured(PacMan pacman) {
+    var int i;
+    var Dot cur;
+    let i = 0;
+    while (i < 10) {
+      let cur = dots[i];
+      if (pacman.isOnDot(cur) & ~(cur.getIsCaptured())) {
+        do cur.setCaptured();
+        let nCaptured = nCaptured + 1;
+      }
+      let i = i + 1;
+    }
+    return;
+  }
+
+  /** Disposes this Dots. */
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+}

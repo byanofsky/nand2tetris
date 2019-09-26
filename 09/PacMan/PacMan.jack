@@ -1,0 +1,84 @@
+class PacMan {
+  field int x, y, size;
+  /** ( 1="up" | 2="down" | 3="left" | 4="right" ) */
+  field int dir;
+
+  constructor PacMan new() {
+    let x = 0;
+    let y = 0;
+    let size = 15;
+    let dir = 4;
+    return this;
+  }
+
+  method void next() {
+    do clear();
+    do advance();
+    do draw();
+    return;
+  }
+
+  method void draw() {
+    // Don't redraw entire pbject
+    do Screen.setColor(true);
+    do Screen.drawRectangle(x, y, x+size, y+size);
+    return;
+  }
+
+  method void clear() {
+    do Screen.setColor(false);
+    do Screen.drawRectangle(x, y, x+size, y+size);
+    return;
+  }
+
+  method boolean isOnDot(Dot dot) {
+    var boolean isX;
+    var boolean isY;
+    let isX = false;
+    let isY = false;
+    if (((x-1) < dot.getX()) & (dot.getX() < (x+size+1))) {
+      let isX = true;
+    }
+    if (((y-1) < dot.getY()) & (dot.getY() < (y+size+1))) {
+      let isY = true;
+    }
+    return isX & isY;
+  }
+
+  method void advance() {
+    var int speed;
+    let speed = 4;
+    if ((dir = 4) & (x < 496)) {
+      let x = x + speed;
+    }
+    if ((dir = 3) & (x > 0)) {
+      let x = x - speed;
+    }
+    if ((dir = 2) & (y < 240)) {
+      let y = y + speed;
+    }
+    if ((dir = 1) & (y > 0)) {
+      let y = y - speed;
+    }
+    return;
+  }
+
+  method void reset() {
+    do clear();
+    let x = 0;
+    let y = 0;
+    let dir = 4;
+    return;
+  }
+
+  method void setDir(int newDir) {
+    let dir = newDir; // assume valid dir
+    return;
+  }
+
+  /** Disposes this PacMan. */
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+}
