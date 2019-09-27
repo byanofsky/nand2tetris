@@ -5,12 +5,17 @@ class Score {
   constructor Score new(Dots d) {
     let score = 0;
     let dots = d;
+    do draw();
     return this;
   }
 
   method void next() {
-    let score = dots.getNCaptured();
-    do draw();
+    var int nextScore;
+    let nextScore = dots.getNCaptured();
+    if (~(nextScore = score)) {
+      let score = nextScore;
+      do draw();
+    }
     return;
   }
 
