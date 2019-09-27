@@ -2,9 +2,11 @@ class Game {
   field Score score;
   field PacMan pacman;
   field Dots dots;
+  field Border border;
 
   constructor Game new() {
-    let pacman = PacMan.new();
+    let border = Border.new();
+    let pacman = PacMan.new(border);
     let dots = Dots.new();
     let score = Score.new(dots);
     return this;

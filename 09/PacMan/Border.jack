@@ -1,0 +1,53 @@
+class Border {
+  field int size;
+  field int outTopLeftX, outTopLeftY;
+  field int outBottomRightX, outBottomRightY;
+  field int inTopLeftX, inTopLeftY;
+  field int inBottomRightX, inBottomRightY;
+
+  constructor Border new() {
+    let size = 4;
+    let outTopLeftX = 0;
+    let outTopLeftY = 12; // offset to allow score
+    let outBottomRightX = 511;
+    let outBottomRightY = 255;
+
+    let inTopLeftX = outTopLeftX + size;
+    let inTopLeftY = outTopLeftY + size;
+    let inBottomRightX = outBottomRightX - size;
+    let inBottomRightY = outBottomRightY - size;
+    do draw();
+    return this;
+  }
+
+  method void draw() {
+    do Screen.setColor(true);
+    do Screen.drawRectangle(outTopLeftX, outTopLeftY, outBottomRightX, outBottomRightY);
+
+    do Screen.setColor(false);
+    do Screen.drawRectangle(inTopLeftX, inTopLeftY, inBottomRightX, inBottomRightY);
+    return;
+  }
+
+  method int getRight() {
+    return inBottomRightX + 1;
+  }
+
+  method int getLeft() {
+    return inTopLeftX - 1;
+  }
+
+  method int getTop() {
+    return inTopLeftY - 1;
+  }
+
+  method int getBottom() {
+    return inBottomRightY + 1;
+  }
+
+  /** Disposes this Border. */
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+}

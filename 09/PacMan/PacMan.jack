@@ -2,12 +2,14 @@ class PacMan {
   field int x, y, size;
   /** ( 1="up" | 2="down" | 3="left" | 4="right" ) */
   field int dir;
+  field Border border;
 
-  constructor PacMan new() {
-    let x = 0;
-    let y = 0;
+  constructor PacMan new(Border b) {
+    let x = 248;
+    let y = 120;
     let size = 15;
     let dir = 4;
+    let border = b;
     return this;
   }
 
@@ -47,17 +49,17 @@ class PacMan {
 
   method void advance() {
     var int speed;
-    let speed = 4;
-    if ((dir = 4) & (x < 496)) {
+    let speed = 1;
+    if ((dir = 4) & (x+size+speed < border.getRight())) {
       let x = x + speed;
     }
-    if ((dir = 3) & (x > 0)) {
+    if ((dir = 3) & (x-speed > border.getLeft())) {
       let x = x - speed;
     }
-    if ((dir = 2) & (y < 240)) {
+    if ((dir = 2) & (y+size+speed < border.getBottom())) {
       let y = y + speed;
     }
-    if ((dir = 1) & (y > 0)) {
+    if ((dir = 1) & (y-speed > border.getTop())) {
       let y = y - speed;
     }
     return;
@@ -65,8 +67,8 @@ class PacMan {
 
   method void reset() {
     do clear();
-    let x = 0;
-    let y = 0;
+    let x = 248;
+    let y = 120;
     let dir = 4;
     return;
   }
