@@ -2,14 +2,16 @@ class PacMan {
   field int x, y, size;
   /** ( 1="up" | 2="down" | 3="left" | 4="right" ) */
   field int dir;
-  field Border border;
+  field Walls walls;
+  field int speed;
 
-  constructor PacMan new(Border b) {
+  constructor PacMan new(Walls w) {
     let x = 248;
     let y = 120;
     let size = 15;
-    let dir = 4;
-    let border = b;
+    let dir = 3;
+    let walls = w;
+    let speed = 4;
     return this;
   }
 
@@ -48,21 +50,43 @@ class PacMan {
   }
 
   method void advance() {
-    var int speed;
-    let speed = 1;
-    if ((dir = 4) & (x+size+speed < border.getRight())) {
-      let x = x + speed;
+    var int nextX, nextY;
+    let nextX = getNextX();
+    let nextY = getNextY();
+    if (willCollideWithWalls(nextX, nextY)) {
+      return;
     }
-    if ((dir = 3) & (x-speed > border.getLeft())) {
-      let x = x - speed;
-    }
-    if ((dir = 2) & (y+size+speed < border.getBottom())) {
-      let y = y + speed;
-    }
-    if ((dir = 1) & (y-speed > border.getTop())) {
-      let y = y - speed;
-    }
+    let x = nextX;
+    let y = nextY;
     return;
+  }
+
+  method boolean willCollideWithWalls(int nextX, int nextY) {
+    return walls.isOverlap(nextX, nextY, nextX+size, nextY+size);
+  }
+
+  method int getNextX() {
+    var int nextX;
+    let nextX = x;
+    if (dir = 4) {
+      let nextX = x + speed;
+    }
+    if (dir = 3) {
+      let nextX = x - speed;
+    }
+    return nextX;
+  }
+
+  method int getNextY() {
+    var int nextY;
+    let nextY = y;
+    if (dir = 2) {
+      let nextY = y + speed;
+    }
+    if (dir = 1) {
+      let nextY = y - speed;
+    }
+    return nextY;
   }
 
   method void reset() {

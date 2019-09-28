@@ -1,0 +1,55 @@
+class Walls {
+  field int nBoundaries;
+  field Array boundaries;
+
+  constructor Walls new() {
+    let nBoundaries = 5;
+    do createBoundaries();
+    do draw();
+    return this;
+  }
+
+  method void createBoundaries() {
+    let boundaries = Array.new(nBoundaries);
+
+    let boundaries[0] = Boundary.new(0, 12, 511, 15); // top
+    let boundaries[1] = Boundary.new(0, 12, 3, 255); // left
+    let boundaries[2] = Boundary.new(0, 252, 511, 255); // bottom
+    let boundaries[3] = Boundary.new(508, 12, 511, 255); // right
+
+    let boundaries[4] = Boundary.new(204, 16, 207, 215);
+    return;
+  }
+
+  method void draw() {
+    var Boundary b;
+    var int i;
+    let i = 0;
+    while (i < nBoundaries) {
+      let b = boundaries[i];
+      do b.draw();
+      let i = i + 1;
+    }
+    return;
+  }
+
+  method boolean isOverlap(int x1, int y1, int x2, int y2) {
+    var Boundary b;
+    var int i;
+    let i = 0;
+    while (i < nBoundaries) {
+      let b = boundaries[i];
+      if (b.isOverlap(x1, y1, x2, y2)) {
+        return true;
+      }
+      let i = i + 1;
+    }
+    return false;
+  }
+
+  /** Disposes this Walls. */
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+}
