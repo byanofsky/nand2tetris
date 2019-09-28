@@ -11,7 +11,7 @@ class PacMan {
     let size = 15;
     let dir = 3;
     let walls = w;
-    let speed = 4;
+    let speed = 1;
     return this;
   }
 
@@ -36,17 +36,10 @@ class PacMan {
   }
 
   method boolean isOnDot(Dot dot) {
-    var boolean isX;
-    var boolean isY;
-    let isX = false;
-    let isY = false;
-    if (((x-1) < dot.getX()) & (dot.getX() < (x+size+1))) {
-      let isX = true;
-    }
-    if (((y-1) < dot.getY()) & (dot.getY() < (y+size+1))) {
-      let isY = true;
-    }
-    return isX & isY;
+    var int endX, endY;
+    let endX = x + size;
+    let endY = y + size;
+    return dot.isOverlap(x, y, endX, endY);
   }
 
   method void advance() {

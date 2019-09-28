@@ -34,6 +34,14 @@ class Dot {
     return y;
   }
 
+  method boolean isOverlap(int x1, int y1, int x2, int y2) {
+    return (
+      (x1 < (x + dotSize)) & (x2 > (x - 1))
+    ) & (
+      (y1 < (y + dotSize)) & (y2 > (y - 1))
+    );
+  }
+
   /** Disposes this Dot. */
   method void dispose() {
     do Memory.deAlloc(this);
