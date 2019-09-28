@@ -14,7 +14,6 @@ class Game {
 
   // TODO: Separate into next and draw functions
   method void next() {
-    do dots.next();
     do pacman.next();
     do markCaptured();
     do score.next();

@@ -11,6 +11,7 @@ class Dots {
     let nDots = perRow * rows;
     let dots = Array.new(nDots);
     do createDots();
+    do draw();
     return this;
   }
 
@@ -32,11 +33,6 @@ class Dots {
       let dots[i] = Dot.new(x, y);
       let i = i + 1;
     }
-    return;
-  }
-
-  method void next() {
-    do draw();
     return;
   }
 
@@ -64,6 +60,7 @@ class Dots {
       let cur = dots[i];
       if (pacman.isOnDot(cur) & ~(cur.getIsCaptured())) {
         do cur.setCaptured();
+        do cur.draw();
         let nCaptured = nCaptured + 1;
       }
       let i = i + 1;
