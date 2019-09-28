@@ -1,26 +1,35 @@
 class Dots {
   field Array dots;
   field int nDots;
+  field int perRow;
+  field int rows;
   field int nCaptured;
 
   constructor Dots new() {
-    let nDots = 32;
+    let perRow = 15;
+    let rows = 3;
+    let nDots = perRow * rows;
     let dots = Array.new(nDots);
     do createDots();
     return this;
   }
 
   method void createDots() {
-    var int startX, startY;
-    var int i, j, cols;
-    let startX = 16;
-    let startY = 32;
+    var int x, y;
+    var int offsetX, offsetY;
+    var int i;
+    var int row, col;
+    let offsetX = 4;
+    let offsetY = 16;
     let i = 0;
-    let cols = 8;
 
     while (i < nDots) {
-      let j = i - ((i/cols)*cols);
-      let dots[i] = Dot.new(startX+(64*j), startY+(32*(i/cols)));
+      // TODO: create with formula
+      let row = i / perRow;
+      let col = i - (row * perRow);
+      let x = offsetX + (8*col) + (24 * (col+1));
+      let y = offsetY + (8*row) + (53 * (row+1));
+      let dots[i] = Dot.new(x, y);
       let i = i + 1;
     }
     return;
