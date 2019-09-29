@@ -20,7 +20,6 @@ class Game {
     return;
   }
 
-  // TODO: Separate into next and draw functions
   method void next() {
     do pacman.next();
     return;
@@ -32,22 +31,11 @@ class Game {
   }
 
   method void handleKey(int key) {
-    if (key = 130) {
-      do pacman.setDir(3); // left
-    }
-    if (key = 131) {
-      do pacman.setDir(1); // up
-    }
-    if (key = 132) {
-      do pacman.setDir(4); // right
-    }
-    if (key = 133) {
-      do pacman.setDir(2); // down
-    }
     if (key = 81) {
-      do pacman.reset();
+      do reset();
+      return;
     }
-
+    do pacman.handleKey(key);
     return;
   }
 

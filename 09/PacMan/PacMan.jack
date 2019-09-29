@@ -107,6 +107,22 @@ class PacMan {
     return;
   }
 
+  method void handleKey(int key) {
+    if (key = 130) {
+      do setDir(3); // left
+    }
+    if (key = 131) {
+      do setDir(1); // up
+    }
+    if (key = 132) {
+      do setDir(4); // right
+    }
+    if (key = 133) {
+      do setDir(2); // down
+    }
+    return;
+  }
+
   method void setDir(int newDir) {
     let dir = newDir; // assume valid dir
     return;
