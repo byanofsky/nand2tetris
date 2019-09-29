@@ -17,7 +17,7 @@ class Walls {
     let boundaries[2] = Boundary.new(0, 252, 511, 255); // bottom
     let boundaries[3] = Boundary.new(508, 12, 511, 255); // right
 
-    let boundaries[4] = Boundary.new(204, 16, 207, 215);
+    let boundaries[4] = Boundary.new(257, 32, 260, 235);
     return;
   }
 
