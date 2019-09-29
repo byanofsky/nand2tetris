@@ -6,12 +6,13 @@ class PacMan {
   field int speed;
 
   constructor PacMan new(Walls w) {
-    let x = 248;
-    let y = 120;
+    let x = 4;
+    let y = 16;
     let size = 15;
-    let dir = 3;
+    let dir = 4;
     let walls = w;
     let speed = 1;
+    do Screen.drawRectangle(x, y, x+size, y+size);
     return this;
   }
 
