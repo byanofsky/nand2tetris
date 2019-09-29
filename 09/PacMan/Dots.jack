@@ -11,8 +11,12 @@ class Dots {
     let nDots = perRow * rows;
     let dots = Array.new(nDots);
     do createDots();
-    do draw();
     return this;
+  }
+
+  method void init() {
+    do draw();
+    return;
   }
 
   method void createDots() {

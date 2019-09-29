@@ -12,6 +12,14 @@ class Game {
     return this;
   }
 
+  method void init() {
+    do pacman.init();
+    do walls.init();
+    do dots.init();
+    do score.init();
+    return;
+  }
+
   // TODO: Separate into next and draw functions
   method void next() {
     do pacman.next();

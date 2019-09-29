@@ -5,8 +5,12 @@ class Walls {
   constructor Walls new() {
     let nBoundaries = 5;
     do createBoundaries();
-    do draw();
     return this;
+  }
+
+  method void init() {
+    do draw();
+    return;
   }
 
   method void createBoundaries() {

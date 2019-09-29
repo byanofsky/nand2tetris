@@ -5,8 +5,12 @@ class Score {
   constructor Score new(Dots d) {
     let score = 0;
     let dots = d;
-    do draw();
     return this;
+  }
+
+  method void init() {
+    do draw();
+    return;
   }
 
   method void next() {

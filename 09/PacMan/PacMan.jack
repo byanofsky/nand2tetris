@@ -12,8 +12,12 @@ class PacMan {
     let dir = 4;
     let walls = w;
     let speed = 1;
-    do Screen.drawRectangle(x, y, x+size, y+size);
     return this;
+  }
+
+  method void init() {
+    do draw();
+    return;
   }
 
   method void next() {
@@ -26,18 +30,7 @@ class PacMan {
   method void draw() {
     // Don't redraw entire pbject
     do Screen.setColor(true);
-    if (dir = 4) {
-      do Screen.drawRectangle(x+size, y, x+size, y+size);
-    }
-    if (dir = 3) {
-      do Screen.drawRectangle(x, y, x, y+size);
-    }
-    if (dir = 2) {
-      do Screen.drawRectangle(x, y+size, x+size, y+size);
-    }
-    if (dir = 1) {
-      do Screen.drawRectangle(x, y, x+size, y);
-    }
+    do Screen.drawRectangle(x, y, x+size, y+size);
     return;
   }
 
