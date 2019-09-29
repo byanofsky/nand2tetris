@@ -25,13 +25,35 @@ class PacMan {
   method void draw() {
     // Don't redraw entire pbject
     do Screen.setColor(true);
-    do Screen.drawRectangle(x, y, x+size, y+size);
+    if (dir = 4) {
+      do Screen.drawRectangle(x+size, y, x+size, y+size);
+    }
+    if (dir = 3) {
+      do Screen.drawRectangle(x, y, x, y+size);
+    }
+    if (dir = 2) {
+      do Screen.drawRectangle(x, y+size, x+size, y+size);
+    }
+    if (dir = 1) {
+      do Screen.drawRectangle(x, y, x+size, y);
+    }
     return;
   }
 
   method void clear() {
     do Screen.setColor(false);
-    do Screen.drawRectangle(x, y, x+size, y+size);
+    if (dir = 4) {
+      do Screen.drawRectangle(x, y, x, y+size);
+    }
+    if (dir = 3) {
+      do Screen.drawRectangle(x+size, y, x+size, y+size);
+    }
+    if (dir = 2) {
+      do Screen.drawRectangle(x, y, x+size, y);
+    }
+    if (dir = 1) {
+      do Screen.drawRectangle(x, y+size, x+size, y+size);
+    }
     return;
   }
 
