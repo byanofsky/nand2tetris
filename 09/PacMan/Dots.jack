@@ -56,16 +56,19 @@ class Dots {
     return nCaptured;
   }
 
-  method void setCaptured(PacMan pacman) {
+  method void setCaptured(int x1, int y1, int x2, int y2) {
     var int i;
     var Dot cur;
     let i = 0;
     while (i < nDots) {
       let cur = dots[i];
-      if (pacman.isOnDot(cur) & ~(cur.getIsCaptured())) {
-        do cur.setCaptured();
-        do cur.draw();
-        let nCaptured = nCaptured + 1;
+      if (cur.isOverlap(x1, y1, x2, y2)) {
+        if (~(cur.getIsCaptured())) {
+          do cur.setCaptured();
+          do cur.draw();
+          let nCaptured = nCaptured + 1;
+        }
+        return;
       }
       let i = i + 1;
     }

@@ -3,14 +3,16 @@ class PacMan {
   /** ( 1="up" | 2="down" | 3="left" | 4="right" ) */
   field int dir;
   field Walls walls;
+  field Dots dots;
   field int speed;
 
-  constructor PacMan new(Walls w) {
+  constructor PacMan new(Dots d, Walls w) {
     let x = 4;
     let y = 16;
     let size = 15;
     let dir = 4;
     let walls = w;
+    let dots = d;
     let speed = 1;
     return this;
   }
@@ -21,52 +23,52 @@ class PacMan {
   }
 
   method void next() {
-    do clear();
-    do advance();
-    do draw();
-    return;
-  }
-
-  method void draw() {
-    // Don't redraw entire pbject
-    do Screen.setColor(true);
-    do Screen.drawRectangle(x, y, x+size, y+size);
-    return;
-  }
-
-  method void clear() {
-    do Screen.setColor(false);
-    if (dir = 4) {
-      do Screen.drawRectangle(x, y, x, y+size);
-    }
-    if (dir = 3) {
-      do Screen.drawRectangle(x+size, y, x+size, y+size);
-    }
-    if (dir = 2) {
-      do Screen.drawRectangle(x, y, x+size, y);
-    }
-    if (dir = 1) {
-      do Screen.drawRectangle(x, y+size, x+size, y+size);
+    var boolean didMove;
+    let didMove = advance();
+    if (didMove) {
+      do draw();
+      do captureDots();
     }
     return;
   }
 
-  method boolean isOnDot(Dot dot) {
-    var int endX, endY;
-    let endX = x + size;
-    let endY = y + size;
-    return dot.isOverlap(x, y, endX, endY);
-  }
-
-  method void advance() {
+  method boolean advance() {
     var int nextX, nextY;
     let nextX = getNextX();
     let nextY = getNextY();
     if (willCollideWithWalls(nextX, nextY)) {
-      return;
+      return false;
+    }
+    if ((x = nextX) & (y = nextY)) {
+      return false;
     }
     let x = nextX;
     let y = nextY;
+    return true;
+  }
+
+  method void captureDots() {
+    do dots.setCaptured(x, y, x+size, y+size);
+    return;
+  }
+
+  method void draw() {
+    do Screen.setColor(false);
+    if (dir = 4) {
+      do Screen.drawRectangle(x-1, y, x-1, y+size);
+    }
+    if (dir = 3) {
+      do Screen.drawRectangle(x+size+1, y, x+size+1, y+size);
+    }
+    if (dir = 2) {
+      do Screen.drawRectangle(x, y-1, x+size, y-1);
+    }
+    if (dir = 1) {
+      do Screen.drawRectangle(x, y+size+1, x+size, y+size+1);
+    }
+    // Don't redraw entire pbject
+    do Screen.setColor(true);
+    do Screen.drawRectangle(x, y, x+size, y+size);
     return;
   }
 
@@ -99,7 +101,6 @@ class PacMan {
   }
 
   method void reset() {
-    do clear();
     let x = 248;
     let y = 120;
     let dir = 4;

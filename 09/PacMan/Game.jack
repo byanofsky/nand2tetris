@@ -6,8 +6,8 @@ class Game {
 
   constructor Game new() {
     let walls = Walls.new();
-    let pacman = PacMan.new(walls);
     let dots = Dots.new();
+    let pacman = PacMan.new(dots, walls);
     let score = Score.new(dots);
     return this;
   }
@@ -23,13 +23,6 @@ class Game {
   // TODO: Separate into next and draw functions
   method void next() {
     do pacman.next();
-    do markCaptured();
-    do score.next();
-    return;
-  }
-
-  method void markCaptured() {
-    do dots.setCaptured(pacman);
     return;
   }
 
