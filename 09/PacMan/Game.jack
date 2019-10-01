@@ -10,7 +10,7 @@ class Game {
     let dots = Dots.new();
     let pacman = PacMan.new(dots, walls);
     let score = Score.new(dots);
-    let ghosts = Ghosts.new(walls);
+    let ghosts = Ghosts.new(pacman, walls);
     return this;
   }
 
@@ -24,9 +24,19 @@ class Game {
   }
 
   method void next() {
+    if (isGameOver()) {
+      do Output.printString("Game Over");
+      while (isGameOver()) {
+        do Sys.wait(100);
+      }
+    }
     do pacman.next();
     do ghosts.next();
     return;
+  }
+
+  method boolean isGameOver() {
+    return pacman.getIsCaptured();
   }
 
   method void reset() {

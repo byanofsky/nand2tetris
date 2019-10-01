@@ -4,10 +4,11 @@ class Ghost {
   field int size;
   /** ( 1="up" | 2="down" | 3="left" | 4="right" ) */
   field int dir;
-  field Walls walls;
   field int speed;
+  field Walls walls;
+  field PacMan pacman;
 
-  constructor Ghost new(Walls w) {
+  constructor Ghost new(PacMan p, Walls w) {
     /* Ghost Config */
     let size = 16;
     let speed = 1;
@@ -15,6 +16,7 @@ class Ghost {
     let y = 16; // start y
     let dir = 3; // Start direction right
 
+    let pacman = p;
     let walls = w;
 
     return this;
@@ -39,6 +41,9 @@ class Ghost {
     let didMove = advance();
     if (didMove) {
       do draw();
+    }
+    if (pacman.isOverlap(x, y, endX(), endY())) {
+      do pacman.capture();
     }
     return;
   }

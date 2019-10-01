@@ -1,11 +1,13 @@
 class Ghosts {
   field Array ghosts;
   field int nGhosts;
+  field PacMan pacman;
   field Walls walls;
 
-  constructor Ghosts new(Walls w) {
+  constructor Ghosts new(PacMan p, Walls w) {
     let nGhosts = 1;
     let walls = w;
+    let pacman = p;
     let ghosts = Array.new(nGhosts);
     do createGhosts();
     return this;
@@ -15,7 +17,7 @@ class Ghosts {
     var int i;
     let i = 0;
     while (i < nGhosts) {
-      let ghosts[i] = Ghost.new(walls);
+      let ghosts[i] = Ghost.new(pacman, walls);
       let i = i + 1;
     }
     return;

@@ -5,6 +5,7 @@ class PacMan {
   field Walls walls;
   field Dots dots;
   field int speed;
+  field boolean isCaptured;
 
   constructor PacMan new(Dots d, Walls w) {
     /* Pacman Config */
@@ -13,6 +14,7 @@ class PacMan {
     let y = 16; // Start y
     let size = 16;
     let dir = 4; // Start direction right
+    let isCaptured = false;
 
     let walls = w;
     let dots = d;
@@ -27,6 +29,10 @@ class PacMan {
 
   method int endY() {
     return y + size - 1;
+  }
+
+  method boolean getIsCaptured() {
+    return isCaptured;
   }
 
   method void init() {
@@ -141,6 +147,19 @@ class PacMan {
   method void setDir(int newDir) {
     let dir = newDir; // assume valid dir
     return;
+  }
+
+  method void capture() {
+    let isCaptured = true;
+    return;
+  }
+
+  method boolean isOverlap(int x1, int y1, int x2, int y2) {
+    return (
+      (x1 < (endX()+1)) & (x2 > (x-1))
+    ) & (
+      (y1 < (endY()+1)) & (y2 > (y-1))
+    );
   }
 
   /** Disposes this PacMan. */
