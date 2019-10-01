@@ -3,12 +3,14 @@ class Game {
   field PacMan pacman;
   field Dots dots;
   field Walls walls;
+  field Ghosts ghosts;
 
   constructor Game new() {
     let walls = Walls.new();
     let dots = Dots.new();
     let pacman = PacMan.new(dots, walls);
     let score = Score.new(dots);
+    let ghosts = Ghosts.new(walls);
     return this;
   }
 
@@ -17,11 +19,13 @@ class Game {
     do walls.init();
     do dots.init();
     do score.init();
+    do ghosts.init();
     return;
   }
 
   method void next() {
     do pacman.next();
+    do ghosts.next();
     return;
   }
 

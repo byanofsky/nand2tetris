@@ -1,0 +1,126 @@
+// TODO: Composition of ghost and pacman
+class Ghost {
+  field int x, y;
+  field int size;
+  /** ( 1="up" | 2="down" | 3="left" | 4="right" ) */
+  field int dir;
+  field Walls walls;
+  field int speed;
+
+  constructor Ghost new(Walls w) {
+    /* Ghost Config */
+    let size = 16;
+    let speed = 1;
+    let x = 511-4-size; // start x
+    let y = 16; // start y
+    let dir = 3; // Start direction right
+
+    let walls = w;
+
+    return this;
+  }
+
+  /* Getters */
+  method int endX() {
+    return x + size - 1;
+  }
+
+  method int endY() {
+    return y + size - 1;
+  }
+
+  method void init() {
+    do draw();
+    return;
+  }
+
+  method void next() {
+    var boolean didMove;
+    let didMove = advance();
+    if (didMove) {
+      do draw();
+    }
+    return;
+  }
+
+  method boolean advance() {
+    var int nextX, nextY;
+    let nextX = getNextX();
+    let nextY = getNextY();
+    if (willCollideWithWalls(nextX, nextY)) {
+      do setNextDir();
+      return false;
+    }
+    if ((x = nextX) & (y = nextY)) {
+      return false;
+    }
+    let x = nextX;
+    let y = nextY;
+    return true;
+  }
+
+  method boolean willCollideWithWalls(int nextX, int nextY) {
+    var int nextEndX, nextEndY;
+    let nextEndX = nextX + size - 1;
+    let nextEndY = nextY + size - 1;
+    return walls.isOverlap(nextX, nextY, nextEndX, nextEndY);
+  }
+
+  method void setNextDir() {
+    if (dir = 1) {
+      let dir = 4;
+    } else {
+      let dir = dir - 1;
+    }
+    return;
+  }
+
+  method int getNextX() {
+    var int nextX;
+    let nextX = x;
+    if (dir = 4) {
+      let nextX = x + speed;
+    }
+    if (dir = 3) {
+      let nextX = x - speed;
+    }
+    return nextX;
+  }
+
+  method int getNextY() {
+    var int nextY;
+    let nextY = y;
+    if (dir = 2) {
+      let nextY = y + speed;
+    }
+    if (dir = 1) {
+      let nextY = y - speed;
+    }
+    return nextY;
+  }
+
+  method void draw() {
+    do Screen.setColor(false);
+    if (dir = 4) {
+      do Screen.drawRectangle(x-1, y, x-1, endY());
+    }
+    if (dir = 3) {
+      do Screen.drawRectangle(endX()+1, y, endX()+1, endY());
+    }
+    if (dir = 2) {
+      do Screen.drawRectangle(x, y-1, endX(), y-1);
+    }
+    if (dir = 1) {
+      do Screen.drawRectangle(x, endY()+1, endX(), endY()+1);
+    }
+    do Screen.setColor(true);
+    do Screen.drawRectangle(x, y, endX(), endY());
+    return;
+  }
+
+  /** Disposes this Ghost. */
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+}
