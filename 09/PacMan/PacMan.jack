@@ -7,14 +7,26 @@ class PacMan {
   field int speed;
 
   constructor PacMan new(Dots d, Walls w) {
-    let x = 4;
-    let y = 16;
-    let size = 15;
-    let dir = 4;
+    /* Pacman Config */
+    let speed = 1;
+    let x = 4; // Start x
+    let y = 16; // Start y
+    let size = 16;
+    let dir = 4; // Start direction right
+
     let walls = w;
     let dots = d;
-    let speed = 1;
+
     return this;
+  }
+
+  /* Getters */
+  method int endX() {
+    return x + size - 1;
+  }
+
+  method int endY() {
+    return y + size - 1;
   }
 
   method void init() {
@@ -48,32 +60,35 @@ class PacMan {
   }
 
   method void captureDots() {
-    do dots.setCaptured(x, y, x+size, y+size);
+    do dots.setCaptured(x, y, endX(), endY());
     return;
   }
 
   method void draw() {
     do Screen.setColor(false);
     if (dir = 4) {
-      do Screen.drawRectangle(x-1, y, x-1, y+size);
+      do Screen.drawRectangle(x-1, y, x-1, endY());
     }
     if (dir = 3) {
-      do Screen.drawRectangle(x+size+1, y, x+size+1, y+size);
+      do Screen.drawRectangle(endX()+1, y, endX()+1, endY());
     }
     if (dir = 2) {
-      do Screen.drawRectangle(x, y-1, x+size, y-1);
+      do Screen.drawRectangle(x, y-1, endX(), y-1);
     }
     if (dir = 1) {
-      do Screen.drawRectangle(x, y+size+1, x+size, y+size+1);
+      do Screen.drawRectangle(x, endY()+1, endX(), endY()+1);
     }
     // Don't redraw entire pbject
     do Screen.setColor(true);
-    do Screen.drawRectangle(x, y, x+size, y+size);
+    do Screen.drawRectangle(x, y, endX(), endY());
     return;
   }
 
   method boolean willCollideWithWalls(int nextX, int nextY) {
-    return walls.isOverlap(nextX, nextY, nextX+size, nextY+size);
+    var int nextEndX, nextEndY;
+    let nextEndX = nextX + size - 1;
+    let nextEndY = nextY + size - 1;
+    return walls.isOverlap(nextX, nextY, nextEndX, nextEndY);
   }
 
   method int getNextX() {
