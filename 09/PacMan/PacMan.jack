@@ -10,10 +10,10 @@ class PacMan {
   constructor PacMan new(Dots d, Walls w) {
     /* Pacman Config */
     let speed = 1;
-    let x = 4; // Start x
-    let y = 16; // Start y
+    let x = 248; // Start x
+    let y = 126; // Start y
     let size = 16;
-    let dir = 4; // Start direction right
+    let dir = 0; // Start direction right
     let isCaptured = false;
 
     let walls = w;
@@ -23,6 +23,15 @@ class PacMan {
   }
 
   /* Getters */
+  // TODO: We should create a position data structure
+  method int getX() {
+    return x;
+  }
+
+  method int getY() {
+    return y;
+  }
+
   method int endX() {
     return x + size - 1;
   }
