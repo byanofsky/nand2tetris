@@ -32,6 +32,7 @@ class Game {
     }
     do pacman.next();
     do ghosts.next();
+    do score.next();
     return;
   }
 
