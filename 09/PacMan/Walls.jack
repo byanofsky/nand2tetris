@@ -3,7 +3,7 @@ class Walls {
   field Array boundaries;
 
   constructor Walls new() {
-    let nBoundaries = 5;
+    let nBoundaries = 10;
     do createBoundaries();
     return this;
   }
@@ -14,14 +14,20 @@ class Walls {
   }
 
   method void createBoundaries() {
+    var int i, bx;
     let boundaries = Array.new(nBoundaries);
 
-    let boundaries[0] = Boundary.new(0, 12, 511, 15); // top
-    let boundaries[1] = Boundary.new(0, 12, 3, 255); // left
-    let boundaries[2] = Boundary.new(0, 252, 511, 255); // bottom
-    let boundaries[3] = Boundary.new(508, 12, 511, 255); // right
+    let boundaries[0] = Boundary.new(0, 12, 511, 13); // top
+    let boundaries[1] = Boundary.new(0, 12, 1, 255); // left
+    let boundaries[2] = Boundary.new(0, 254, 511, 255); // bottom
+    let boundaries[3] = Boundary.new(510, 12, 511, 255); // right
 
-    let boundaries[4] = Boundary.new(257, 32, 260, 235);
+    let i = 4;
+    while (i < nBoundaries) {
+      let bx = (100*(i-4)) + (2*(i-4));
+      let boundaries[i] = Boundary.new(bx, 12, bx+1, 255);
+      let i = i + 1;
+    }
     return;
   }
 
