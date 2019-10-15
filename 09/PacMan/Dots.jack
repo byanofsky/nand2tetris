@@ -6,8 +6,8 @@ class Dots {
   field int nCaptured;
 
   constructor Dots new() {
-    let perRow = 22;
-    let rows = 6;
+    let perRow = 21;
+    let rows = 13;
     let nDots = perRow * rows;
     let dots = Array.new(nDots);
     do createDots();
@@ -24,16 +24,20 @@ class Dots {
     var int offsetX, offsetY;
     var int i;
     var int row, col;
+    var int xSpace;
+    var int ySpace;
     let offsetX = 4;
     let offsetY = 16;
+    let xSpace = (512 - 8 - (perRow*2)) / (perRow + 1);
+    let ySpace = (256 - 8 - 12 - (rows*2)) / (rows + 1);
     let i = 0;
 
     while (i < nDots) {
       // TODO: create with formula
       let row = i / perRow;
       let col = i - (row * perRow);
-      let x = offsetX + (2*col) + (20 * (col+1));
-      let y = offsetY + (2*row) + (32 * (row+1));
+      let x = offsetX + (2*col) + (xSpace * (col+1));
+      let y = offsetY + (2*row) + (ySpace * (row+1));
       let dots[i] = Dot.new(x, y);
       let i = i + 1;
     }

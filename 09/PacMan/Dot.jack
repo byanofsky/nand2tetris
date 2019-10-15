@@ -6,7 +6,7 @@ class Dot {
   constructor Dot new(int ix, int iy) {
     let x = ix;
     let y = iy;
-    let dotSize = 8;
+    let dotSize = 2;
     let isCaptured = false;
     return this;
   }
