@@ -5,7 +5,7 @@ class Ghosts {
   field Walls walls;
 
   constructor Ghosts new(PacMan p, Walls w) {
-    let nGhosts = 1;
+    let nGhosts = 2;
     let walls = w;
     let pacman = p;
     let ghosts = Array.new(nGhosts);
@@ -14,12 +14,8 @@ class Ghosts {
   }
 
   method void createGhosts() {
-    var int i;
-    let i = 0;
-    while (i < nGhosts) {
-      let ghosts[i] = Ghost.new(pacman, walls);
-      let i = i + 1;
-    }
+    let ghosts[0] = Ghost.new(511-4-16, 16, pacman, walls);
+    let ghosts[1] = Ghost.new(4, 16, pacman, walls);
     return;
   }
 

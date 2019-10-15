@@ -8,12 +8,12 @@ class Ghost {
   field Walls walls;
   field PacMan pacman;
 
-  constructor Ghost new(PacMan p, Walls w) {
+  constructor Ghost new(int xi, int yi, PacMan p, Walls w) {
     /* Ghost Config */
     let size = 16;
     let speed = 1;
-    let x = 511-4-size; // start x
-    let y = 16; // start y
+    let x = xi; // start x
+    let y = yi; // start y
     let dir = 3; // Start direction right
 
     let pacman = p;
@@ -72,11 +72,26 @@ class Ghost {
   }
 
   method void setNextDir() {
-    if (dir = 1) {
+    var int pacmanX, pacmanY;
+    var int diffX, diffY;
+    let pacmanX = pacman.getX();
+    let pacmanY = pacman.getY();
+    // TODO: simplify abs value
+    let diffX = Math.max(x, pacmanX) - Math.min(x, pacmanX);
+    let diffY = Math.max(y, pacmanY) - Math.min(y, pacmanY);
+    if (~(diffX = 0) & (diffX > diffY)) {
+      if (pacmanX < x) {
+        let dir = 3;
+        return;
+      }
       let dir = 4;
-    } else {
-      let dir = dir - 1;
+      return;
     }
+    if (pacmanY < y) {
+      let dir = 1;
+      return;
+    }
+    let dir = 2;
     return;
   }
 
