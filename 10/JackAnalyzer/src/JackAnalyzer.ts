@@ -1,6 +1,7 @@
 import JackTokenizer from './JackTokenizer';
-import { statSync, readdirSync } from 'fs';
+import { statSync, readdirSync, createWriteStream } from 'fs';
 import { extname, join } from 'path';
+import CompilationEngine from './CompilationEngine';
 
 export default class JackAnalyzer {
   analyze(inputPath: string) {
@@ -17,7 +18,13 @@ export default class JackAnalyzer {
 
   private analyzeFile(inputPath: string) {
     const jackTokenizer = new JackTokenizer(inputPath);
-    const tokenOutPath = inputPath.replace(/\.jack$/, 'T.xml');
-    jackTokenizer.tokenize(tokenOutPath);
+    const outPath = inputPath.replace(/\.jack$/, '.xml');
+    const outStream = createWriteStream(outPath);
+    const compilationEngine = new CompilationEngine(outStream, jackTokenizer);
+
+    // const tokenOutPath = inputPath.replace(/\.jack$/, 'T.xml');
+    // jackTokenizer.tokenize(tokenOutPath);
+
+    compilationEngine.compile();
   }
 }

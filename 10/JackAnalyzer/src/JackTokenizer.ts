@@ -43,7 +43,17 @@ export default class JackTokenizer {
           break;
         }
         case TokenType.Symbol: {
-          val = this.symbol();
+          const token = this.symbol();
+          switch (token) {
+            case '<':
+              val = '&lt;';
+            case '>':
+              val = '&gt;';
+            case '&':
+              val = '&amp;';
+            default:
+              val = token;
+          }
           break;
         }
       }
@@ -55,7 +65,7 @@ export default class JackTokenizer {
   }
 
   hasMoreTokens(): boolean {
-    return this.currentTokenPos < this.tokens.length - 1;
+    return this.currentTokenPos < this.tokens.length;
   }
 
   advance() {
@@ -64,6 +74,16 @@ export default class JackTokenizer {
     }
 
     this.currentTokenPos += 1;
+  }
+
+  peekNextToken() {
+    const nextPos = this.currentTokenPos + 1;
+    if (!(nextPos < this.tokens.length)) {
+      throw new Error(
+        'Cannot peek beyond tokens. Length: ' + this.tokens.length
+      );
+    }
+    return this.tokens[nextPos];
   }
 
   tokenType(): TokenType {
@@ -94,17 +114,7 @@ export default class JackTokenizer {
     if (this.tokenType() !== TokenType.Symbol) {
       throw new Error('Not a symbol: ' + this.getCurrentToken());
     }
-    const token = this.getCurrentToken();
-    switch (token) {
-      case '<':
-        return '&lt;';
-      case '>':
-        return '&gt;';
-      case '&':
-        return '&amp;';
-      default:
-        return token;
-    }
+    return this.getCurrentToken();
   }
 
   identifier(): string {
