@@ -1,0 +1,25 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch JackAnalyzer",
+      "program": "${workspaceFolder}/10/JackAnalyzer/src/index.ts",
+      "outFiles": ["${workspaceFolder}/10/JackAnalyzer/dist/**/*.js"],
+      "args": [
+        "/Users/by-macbookpro/Documents/Nand2Tetris/nand2tetris/projects/10/Square"
+      ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "program": "${file}",
+      "outFiles": ["${workspaceFolder}/**/*.js"]
+    }
+  ]
+}
