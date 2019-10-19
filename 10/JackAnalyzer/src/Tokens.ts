@@ -61,7 +61,7 @@ const tokenRegex = new RegExp(
   'g'
 );
 
-const inlineCommentsRegex = /^\/\/.*?$/gm;
+const inlineCommentsRegex = /\/\/.*?$/gm;
 const commentsRegex = /\/\*\*?((?!\*\/).|\n)*\*\//g;
 export const removeComments = (code: string) => {
   return code.replace(inlineCommentsRegex, '').replace(commentsRegex, '');
