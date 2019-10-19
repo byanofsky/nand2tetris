@@ -6,7 +6,9 @@
   "bin": "./dist/index.js",
   "scripts": {
     "start": "tsc --watch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "compile": "./dist/index.js",
+    "test": "./bin/runTests.sh"
   },
   "author": "Brandon Yanofsky <byanofsky@me.com>",
   "license": "ISC",
