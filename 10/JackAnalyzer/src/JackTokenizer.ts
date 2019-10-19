@@ -85,14 +85,14 @@ export default class JackTokenizer {
 
   keyword(): string {
     if (this.tokenType() !== TokenType.Keyword) {
-      throw new Error('Not a keyword');
+      throw new Error('Not a keyword: ' + this.getCurrentToken());
     }
     return this.getCurrentToken();
   }
 
   symbol(): string {
     if (this.tokenType() !== TokenType.Symbol) {
-      throw new Error('Not a symbol');
+      throw new Error('Not a symbol: ' + this.getCurrentToken());
     }
     const token = this.getCurrentToken();
     switch (token) {
@@ -109,7 +109,7 @@ export default class JackTokenizer {
 
   identifier(): string {
     if (this.tokenType() !== TokenType.Identifier) {
-      throw new Error('Not an identifier');
+      throw new Error('Not an identifier: ' + this.getCurrentToken());
     }
     return this.getCurrentToken();
   }
