@@ -48,7 +48,9 @@ class VMWriter {
 
   writeReturn() {}
 
-  close() {}
+  close() {
+    this.outStream.end();
+  }
 }
 
 export default VMWriter;

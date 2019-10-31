@@ -23,15 +23,15 @@ export default class JackCompiler {
   private compileFile(inputPath: string) {
     const symbolTable = new SymbolTable();
     const jackTokenizer = new JackTokenizer(inputPath);
-    const outPath = inputPath.replace(/\.jack$/, '.xml');
+    const outPath = inputPath.replace(/\.jack$/, '.vm');
     const outStream = createWriteStream(outPath);
     const vmWriter = new VMWriter(outStream);
     const compilationEngine = new CompilationEngine(
-      outStream,
       jackTokenizer,
       symbolTable,
       vmWriter
     );
     compilationEngine.compile();
+    vmWriter.close();
   }
 }

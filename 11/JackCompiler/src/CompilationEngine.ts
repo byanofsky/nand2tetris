@@ -1,38 +1,22 @@
 import { WriteStream } from 'fs';
 import JackTokenizer from './JackTokenizer';
 import { TokenType } from './types';
-import SymbolTable, { SymbolKind } from './SymbolTable';
+import SymbolTable, {
+  SymbolKind,
+  convertKeywordToSymbolKind
+} from './SymbolTable';
 import VMWriter from './VMWriter';
 
-const convertKeywordToSymbolKind = (keyword: string): SymbolKind => {
-  switch (keyword) {
-    case '':
-      return SymbolKind.Arg;
-    case 'field':
-      return SymbolKind.Field;
-    case 'static':
-      return SymbolKind.Static;
-    case 'var':
-      return SymbolKind.Var;
-    default:
-      return SymbolKind.None;
-  }
-};
-
 export default class CompilationEngine {
-  private outStream: WriteStream;
   private tokenizer: JackTokenizer;
   private symbolTable: SymbolTable;
   private vmWriter: VMWriter;
-  private nTabs: number = 0;
 
   constructor(
-    outStream: WriteStream,
     tokenizer: JackTokenizer,
     symbolTable: SymbolTable,
     vmWriter: VMWriter
   ) {
-    this.outStream = outStream;
     this.tokenizer = tokenizer;
     this.symbolTable = symbolTable;
     this.vmWriter = vmWriter;
@@ -41,12 +25,9 @@ export default class CompilationEngine {
   compile() {
     this.tokenizer.advance();
     this.compileClass();
-    this.outStream.end();
   }
 
   compileClass() {
-    this.write('<class>');
-    this.indent();
     // class
     this.compileKeyword();
     this.symbolTable.define(
@@ -63,13 +44,9 @@ export default class CompilationEngine {
       this.compileSubroutineDec();
     }
     this.compileSymbol();
-    this.deindent();
-    this.write('</class>');
   }
 
   compileClassVarDec() {
-    this.write('<classVarDec>');
-    this.indent();
     // keyword
     const keyword = this.tokenizer.keyword();
     this.compileKeyword();
@@ -94,8 +71,6 @@ export default class CompilationEngine {
     }
     // ';'
     this.compileSymbol();
-    this.deindent();
-    this.write('</classVarDec>');
   }
 
   private isClassVarDec() {
@@ -115,8 +90,6 @@ export default class CompilationEngine {
   }
 
   compileSubroutineDec() {
-    this.write('<subroutineDec>');
-    this.indent();
     // keyword
     this.compileKeyword();
     // 'void' | type
@@ -137,8 +110,6 @@ export default class CompilationEngine {
     this.compileSymbol();
     // subroutineBody
     this.compileSubroutineBody();
-    this.deindent();
-    this.write('</subroutineDec>');
   }
 
   private isSubroutineDec() {
@@ -150,8 +121,6 @@ export default class CompilationEngine {
   }
 
   private compileSubroutineBody() {
-    this.write('<subroutineBody>');
-    this.indent();
     // '{'
     this.compileSymbol();
     while (this.isVarDec()) {
@@ -160,13 +129,9 @@ export default class CompilationEngine {
     this.compileStatements();
     // '}'
     this.compileSymbol();
-    this.deindent();
-    this.write('</subroutineBody>');
   }
 
   compileParameterList() {
-    this.write('<parameterList>');
-    this.indent();
     while (!(this.isSymbol() && this.tokenizer.symbol() === ')')) {
       // type
       const type = this.isKeyword()
@@ -185,13 +150,9 @@ export default class CompilationEngine {
         this.compileSymbol();
       }
     }
-    this.deindent();
-    this.write('</parameterList>');
   }
 
   compileVarDec() {
-    this.write('<varDec>');
-    this.indent();
     // 'var'
     this.compileKeyword();
     // type
@@ -213,8 +174,6 @@ export default class CompilationEngine {
     }
     // ';'
     this.compileSymbol();
-    this.deindent();
-    this.write('</varDec>');
   }
 
   private isVarDec() {
@@ -222,13 +181,9 @@ export default class CompilationEngine {
   }
 
   compileStatements() {
-    this.write('<statements>');
-    this.indent();
     while (this.isStatement()) {
       this.compileStatement();
     }
-    this.deindent();
-    this.write('</statements>');
   }
 
   compileStatement() {
@@ -257,16 +212,12 @@ export default class CompilationEngine {
   }
 
   compileDo() {
-    this.write('<doStatement>');
-    this.indent();
     // 'do'
     this.compileKeyword();
     // subroutineCall
     this.compileSubroutineCall();
     // ';'
     this.compileSymbol();
-    this.deindent();
-    this.write('</doStatement>');
   }
 
   isDo(): boolean {
@@ -291,8 +242,6 @@ export default class CompilationEngine {
   }
 
   compileLet() {
-    this.write('<letStatement>');
-    this.indent();
     // 'let'
     this.compileKeyword();
     // varName
@@ -311,8 +260,6 @@ export default class CompilationEngine {
     this.compileExpression();
     // ';'
     this.compileSymbol();
-    this.deindent();
-    this.write('</letStatement>');
   }
 
   isLet(): boolean {
@@ -320,8 +267,6 @@ export default class CompilationEngine {
   }
 
   compileWhile() {
-    this.write('<whileStatement>');
-    this.indent();
     // 'while'
     this.compileKeyword();
     // '('
@@ -336,8 +281,6 @@ export default class CompilationEngine {
     this.compileStatements();
     // '}'
     this.compileSymbol();
-    this.deindent();
-    this.write('</whileStatement>');
   }
 
   isWhile(): boolean {
@@ -345,8 +288,6 @@ export default class CompilationEngine {
   }
 
   compileReturn() {
-    this.write('<returnStatement>');
-    this.indent();
     // 'return'
     this.compileKeyword();
     // 'expression'
@@ -355,8 +296,6 @@ export default class CompilationEngine {
     }
     // ';'
     this.compileSymbol();
-    this.deindent();
-    this.write('</returnStatement>');
   }
 
   isReturn(): boolean {
@@ -364,8 +303,6 @@ export default class CompilationEngine {
   }
 
   compileIf() {
-    this.write('<ifStatement>');
-    this.indent();
     // 'if'
     this.compileKeyword();
     // '('
@@ -390,8 +327,6 @@ export default class CompilationEngine {
       // '}'
       this.compileSymbol();
     }
-    this.deindent();
-    this.write('</ifStatement>');
   }
 
   isIf(): boolean {
@@ -399,20 +334,14 @@ export default class CompilationEngine {
   }
 
   compileExpression() {
-    this.write('<expression>');
-    this.indent();
     this.compileTerm();
     while (this.isOp()) {
       this.compileOp();
       this.compileTerm();
     }
-    this.deindent();
-    this.write('</expression>');
   }
 
   compileTerm() {
-    this.write('<term>');
-    this.indent();
     // integerConstant
     if (this.isIntegerConstant()) {
       this.compileIntegerConstant();
@@ -466,8 +395,6 @@ export default class CompilationEngine {
           this.compileTerm();
       }
     }
-    this.deindent();
-    this.write('</term>');
   }
 
   isTerm(): boolean {
@@ -495,25 +422,16 @@ export default class CompilationEngine {
   }
 
   compileExpressionList() {
-    this.write('<expressionList>');
-    this.indent();
     while (this.isExpression()) {
       this.compileExpression();
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
         this.compileSymbol();
       }
     }
-    this.deindent();
-    this.write('</expressionList>');
   }
 
   isExpression(): boolean {
     return this.isTerm();
-  }
-
-  // TODO: We could map a type to tokenizer method
-  private writeTerminal(type: TokenType, token: string) {
-    this.write(`<${type}>${token}</${type}>`);
   }
 
   private isKeyword(): boolean {
@@ -537,7 +455,6 @@ export default class CompilationEngine {
   }
 
   private compileKeyword() {
-    this.writeTerminal(TokenType.Keyword, this.tokenizer.keyword());
     this.tokenizer.advance();
   }
 
@@ -554,49 +471,18 @@ export default class CompilationEngine {
         symbol = '&amp;';
         break;
     }
-    this.writeTerminal(TokenType.Symbol, symbol);
     this.tokenizer.advance();
   }
 
   private compileIntegerConstant() {
-    this.writeTerminal(
-      TokenType.IntegerConstant,
-      String(this.tokenizer.intVal())
-    );
     this.tokenizer.advance();
   }
 
   private compileStringConstant() {
-    this.writeTerminal(TokenType.StringConstant, this.tokenizer.stringVal());
     this.tokenizer.advance();
   }
 
   private compileIdentifier(isDeclaration = false) {
-    const identifier = this.tokenizer.identifier();
-    this.write('<identifier>');
-    this.nTabs++;
-    this.write(`<name>${identifier}</name>`);
-    this.write(`<kind>${this.symbolTable.kindOf(identifier)}</kind>`);
-    this.write(`<type>${this.symbolTable.typeOf(identifier)}</type>`);
-    this.write(`<use>${isDeclaration ? 'declaration' : 'use'}</use>`);
-    this.write(
-      `<symbolIndex>${this.symbolTable.indexOf(identifier)}</symbolIndex>`
-    );
-    this.nTabs--;
-    this.write('</identifier>');
     this.tokenizer.advance();
-  }
-
-  private write(out: string) {
-    const tabs = '\t'.repeat(this.nTabs);
-    this.outStream.write(tabs + out + '\n');
-  }
-
-  private indent() {
-    this.nTabs++;
-  }
-
-  private deindent() {
-    this.nTabs--;
   }
 }

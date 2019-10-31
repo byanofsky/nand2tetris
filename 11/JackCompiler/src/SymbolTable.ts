@@ -14,6 +14,21 @@ interface IdentifierProperties {
 
 type SymbolsMap = Map<string, IdentifierProperties>;
 
+export const convertKeywordToSymbolKind = (keyword: string): SymbolKind => {
+  switch (keyword) {
+    case '':
+      return SymbolKind.Arg;
+    case 'field':
+      return SymbolKind.Field;
+    case 'static':
+      return SymbolKind.Static;
+    case 'var':
+      return SymbolKind.Var;
+    default:
+      return SymbolKind.None;
+  }
+};
+
 class SymbolTable {
   classTable: SymbolsMap = new Map();
   subroutineTable: SymbolsMap = new Map();
