@@ -1,15 +1,37 @@
 import { WriteStream } from 'fs';
 import JackTokenizer from './JackTokenizer';
 import { TokenType } from './types';
+import SymbolTable, { SymbolKind } from './SymbolTable';
+
+const convertKeywordToSymbolKind = (keyword: string): SymbolKind => {
+  switch (keyword) {
+    case '':
+      return SymbolKind.Arg;
+    case 'field':
+      return SymbolKind.Field;
+    case 'static':
+      return SymbolKind.Static;
+    case 'var':
+      return SymbolKind.Var;
+    default:
+      return SymbolKind.None;
+  }
+};
 
 export default class CompilationEngine {
   private outStream: WriteStream;
   private tokenizer: JackTokenizer;
+  private symbolTable: SymbolTable;
   private nTabs: number = 0;
 
-  constructor(outStream: WriteStream, tokenizer: JackTokenizer) {
+  constructor(
+    outStream: WriteStream,
+    tokenizer: JackTokenizer,
+    symbolTable: SymbolTable
+  ) {
     this.outStream = outStream;
     this.tokenizer = tokenizer;
+    this.symbolTable = symbolTable;
   }
 
   compile() {
@@ -23,7 +45,12 @@ export default class CompilationEngine {
     this.indent();
     // class
     this.compileKeyword();
-    this.compileIdentifier();
+    this.symbolTable.define(
+      this.tokenizer.identifier(),
+      'class',
+      SymbolKind.None
+    );
+    this.compileIdentifier(true);
     this.compileSymbol();
     while (this.isClassVarDec()) {
       this.compileClassVarDec();
@@ -40,13 +67,22 @@ export default class CompilationEngine {
     this.write('<classVarDec>');
     this.indent();
     // keyword
+    const keyword = this.tokenizer.keyword();
     this.compileKeyword();
     // type
+    const type = this.isKeyword()
+      ? this.tokenizer.keyword()
+      : this.tokenizer.identifier();
     this.compileType();
     // varNames
     while (!(this.isSymbol() && this.tokenizer.symbol() === ';')) {
       // varName
-      this.compileIdentifier();
+      this.symbolTable.define(
+        this.tokenizer.identifier(),
+        type,
+        convertKeywordToSymbolKind(keyword)
+      );
+      this.compileIdentifier(true);
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
         // ','
         this.compileSymbol();
@@ -82,7 +118,13 @@ export default class CompilationEngine {
     // 'void' | type
     this.compileType();
     // subroutineName
-    this.compileIdentifier();
+    this.symbolTable.startSubrouting();
+    this.symbolTable.define(
+      this.tokenizer.identifier(),
+      'subroutine',
+      SymbolKind.None
+    );
+    this.compileIdentifier(true);
     // '('
     this.compileSymbol();
     // parameterList
@@ -123,9 +165,17 @@ export default class CompilationEngine {
     this.indent();
     while (!(this.isSymbol() && this.tokenizer.symbol() === ')')) {
       // type
+      const type = this.isKeyword()
+        ? this.tokenizer.keyword()
+        : this.tokenizer.identifier();
       this.compileType();
       // varName
-      this.compileIdentifier();
+      this.symbolTable.define(
+        this.tokenizer.identifier(),
+        type,
+        SymbolKind.Arg
+      );
+      this.compileIdentifier(true);
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
         // ','
         this.compileSymbol();
@@ -141,9 +191,17 @@ export default class CompilationEngine {
     // 'var'
     this.compileKeyword();
     // type
+    const type = this.isKeyword()
+      ? this.tokenizer.keyword()
+      : this.tokenizer.identifier();
     this.compileType();
     while (!(this.isSymbol() && this.tokenizer.symbol() === ';')) {
-      this.compileIdentifier();
+      this.symbolTable.define(
+        this.tokenizer.identifier(),
+        type,
+        SymbolKind.Var
+      );
+      this.compileIdentifier(true);
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
         // ','
         this.compileSymbol();
@@ -509,9 +567,18 @@ export default class CompilationEngine {
     this.tokenizer.advance();
   }
 
-  private compileIdentifier() {
+  private compileIdentifier(isDeclaration = false) {
+    const identifier = this.tokenizer.identifier();
     this.write('<identifier>');
-    this.write(this.tokenizer.identifier());
+    this.nTabs++;
+    this.write(`<name>${identifier}</name>`);
+    this.write(`<kind>${this.symbolTable.kindOf(identifier)}</kind>`);
+    this.write(`<type>${this.symbolTable.typeOf(identifier)}</type>`);
+    this.write(`<use>${isDeclaration ? 'declaration' : 'use'}</use>`);
+    this.write(
+      `<symbolIndex>${this.symbolTable.indexOf(identifier)}</symbolIndex>`
+    );
+    this.nTabs--;
     this.write('</identifier>');
     this.tokenizer.advance();
   }

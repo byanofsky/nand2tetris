@@ -1,8 +1,9 @@
-enum SymbolKind {
+export enum SymbolKind {
   Static = 'static',
   Field = 'field',
   Arg = 'arg',
-  Var = 'var'
+  Var = 'var',
+  None = 'none'
 }
 
 interface IdentifierProperties {
@@ -60,6 +61,10 @@ class SymbolTable {
   indexOf(name: string): number | undefined {
     const props = this.getByName(name);
     return props && props.index;
+  }
+
+  has(name: string): boolean {
+    return this.getByName(name) !== undefined;
   }
 
   private getByName(name: string): IdentifierProperties | undefined {
