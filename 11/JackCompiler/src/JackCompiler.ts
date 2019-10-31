@@ -7,7 +7,7 @@ import SymbolTable from './SymbolTable';
 const isDirectory = (path: string): boolean => statSync(path).isDirectory();
 
 export default class JackCompiler {
-  analyze(inputPath: string) {
+  compile(inputPath: string) {
     let inputFilePaths: string[];
     if (isDirectory(inputPath)) {
       inputFilePaths = readdirSync(inputPath)
@@ -16,10 +16,10 @@ export default class JackCompiler {
     } else {
       inputFilePaths = [inputPath];
     }
-    inputFilePaths.forEach(filePath => this.analyzeFile(filePath));
+    inputFilePaths.forEach(filePath => this.compileFile(filePath));
   }
 
-  private analyzeFile(inputPath: string) {
+  private compileFile(inputPath: string) {
     const symbolTable = new SymbolTable();
     const jackTokenizer = new JackTokenizer(inputPath);
     const outPath = inputPath.replace(/\.jack$/, '.xml');
