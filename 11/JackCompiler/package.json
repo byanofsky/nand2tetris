@@ -13,7 +13,7 @@
   "author": "Brandon Yanofsky <byanofsky@me.com>",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^12.7.4",
+    "@types/node": "^12.12.3",
     "npm": "^6.12.1",
     "ts-node": "^8.4.1",
     "typescript": "^3.6.2"
