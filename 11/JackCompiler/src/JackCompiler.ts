@@ -6,7 +6,7 @@ import SymbolTable from './SymbolTable';
 
 const isDirectory = (path: string): boolean => statSync(path).isDirectory();
 
-export default class JackAnalyzer {
+export default class JackCompiler {
   analyze(inputPath: string) {
     let inputFilePaths: string[];
     if (isDirectory(inputPath)) {

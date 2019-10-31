@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import JackAnalyzer from './JackAnalyzer';
+import JackCompiler from './JackCompiler';
 
 const filePath = process.argv[2];
-const jackCompiler = new JackAnalyzer();
+const jackCompiler = new JackCompiler();
 jackCompiler.analyze(filePath);

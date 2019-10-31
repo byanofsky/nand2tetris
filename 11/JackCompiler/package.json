@@ -1,7 +1,7 @@
 {
-  "name": "jack-analyzer",
-  "version": "2.0.0",
-  "description": "JackAnalyzer with symbol table",
+  "name": "jack-compiler",
+  "version": "1.0.0",
+  "description": "Jack language compiler",
   "main": "./dist/index.js",
   "bin": "./dist/index.js",
   "scripts": {
