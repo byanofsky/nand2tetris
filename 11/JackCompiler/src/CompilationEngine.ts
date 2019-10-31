@@ -2,6 +2,7 @@ import { WriteStream } from 'fs';
 import JackTokenizer from './JackTokenizer';
 import { TokenType } from './types';
 import SymbolTable, { SymbolKind } from './SymbolTable';
+import VMWriter from './VMWriter';
 
 const convertKeywordToSymbolKind = (keyword: string): SymbolKind => {
   switch (keyword) {
@@ -22,16 +23,19 @@ export default class CompilationEngine {
   private outStream: WriteStream;
   private tokenizer: JackTokenizer;
   private symbolTable: SymbolTable;
+  private vmWriter: VMWriter;
   private nTabs: number = 0;
 
   constructor(
     outStream: WriteStream,
     tokenizer: JackTokenizer,
-    symbolTable: SymbolTable
+    symbolTable: SymbolTable,
+    vmWriter: VMWriter
   ) {
     this.outStream = outStream;
     this.tokenizer = tokenizer;
     this.symbolTable = symbolTable;
+    this.vmWriter = vmWriter;
   }
 
   compile() {

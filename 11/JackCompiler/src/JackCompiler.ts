@@ -3,6 +3,7 @@ import { statSync, readdirSync, createWriteStream } from 'fs';
 import { extname, join } from 'path';
 import CompilationEngine from './CompilationEngine';
 import SymbolTable from './SymbolTable';
+import VMWriter from './VMWriter';
 
 const isDirectory = (path: string): boolean => statSync(path).isDirectory();
 
@@ -24,10 +25,12 @@ export default class JackCompiler {
     const jackTokenizer = new JackTokenizer(inputPath);
     const outPath = inputPath.replace(/\.jack$/, '.xml');
     const outStream = createWriteStream(outPath);
+    const vmWriter = new VMWriter(outStream);
     const compilationEngine = new CompilationEngine(
       outStream,
       jackTokenizer,
-      symbolTable
+      symbolTable,
+      vmWriter
     );
     compilationEngine.compile();
   }
