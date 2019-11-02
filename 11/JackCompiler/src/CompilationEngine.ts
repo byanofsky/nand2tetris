@@ -250,9 +250,13 @@ export default class CompilationEngine {
 
   compileLet() {
     // 'let'
-    this.compileKeyword();
+    this.tokenizer.advance();
     // varName
-    this.compileIdentifier();
+    const idenitifier = this.tokenizer.identifier();
+    this.tokenizer.advance();
+    const kind = this.symbolTable.kindOf(idenitifier);
+    const segment = convertSymbolKindToSegment(kind);
+    const index = this.symbolTable.indexOf(idenitifier);
     if (this.tokenizer.symbol() === '[') {
       // '['
       this.tokenizer.advance();
@@ -265,6 +269,7 @@ export default class CompilationEngine {
     this.tokenizer.advance();
     // expression
     this.compileExpression();
+    this.vmWriter.writePop(segment, index);
     // ';'
     this.tokenizer.advance();
   }
