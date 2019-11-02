@@ -5,7 +5,8 @@ import SymbolTable, { SymbolKind } from './SymbolTable';
 import VMWriter, { Segment, ArithmeticCommand } from './VMWriter';
 import {
   convertKeywordToSymbolKind,
-  convertSymbolKindToSegment
+  convertSymbolKindToSegment,
+  generateLabel
 } from './utils';
 
 export default class CompilationEngine {
@@ -279,20 +280,36 @@ export default class CompilationEngine {
   }
 
   compileWhile() {
+    const whileLabel = generateLabel();
+    const breakLabel = generateLabel();
+
+    this.vmWriter.writeLabel(whileLabel);
+
     // 'while'
-    this.compileKeyword();
+    this.tokenizer.advance();
     // '('
     this.tokenizer.advance();
     // expression
     this.compileExpression();
     // ')'
     this.tokenizer.advance();
+
+    // Negate conditional statement.
+    // Therefore, if conditional is false, goto break label.
+    // Otherwise, continue through while block.
+    this.vmWriter.writeArithmetic(ArithmeticCommand.Neg);
+    this.vmWriter.writeIf(breakLabel);
+
     // '{'
     this.tokenizer.advance();
     // statements
     this.compileStatements();
+    // Return to beginning of while statemet
+    this.vmWriter.writeGoto(whileLabel);
     // '}'
     this.tokenizer.advance();
+
+    this.vmWriter.writeLabel(breakLabel);
   }
 
   isWhile(): boolean {

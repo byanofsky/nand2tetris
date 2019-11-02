@@ -1,5 +1,6 @@
 import { SymbolKind } from './SymbolTable';
 import { Segment } from './VMWriter';
+import * as uuid from 'uuid';
 
 export const convertKeywordToSymbolKind = (keyword: string): SymbolKind => {
   switch (keyword) {
@@ -36,3 +37,5 @@ export const convertSymbolKindToSegment = (kind: SymbolKind): Segment => {
     }
   }
 };
+
+export const generateLabel = () => `l-${uuid.v4()}`;
