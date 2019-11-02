@@ -29,48 +29,46 @@ export default class CompilationEngine {
 
   compileClass() {
     // class
-    this.compileKeyword();
-    this.symbolTable.define(
-      this.tokenizer.identifier(),
-      'class',
-      SymbolKind.None
-    );
-    this.compileIdentifier(true);
-    this.compileSymbol();
+    // skip keyword, identifier, symbol `{`
+    // TODO: better way to handle advancing
+    // maybe via `this.advance(n)`
+    this.tokenizer.advance();
+    this.tokenizer.advance();
+    this.tokenizer.advance();
     while (this.isClassVarDec()) {
       this.compileClassVarDec();
     }
     while (this.isSubroutineDec()) {
       this.compileSubroutineDec();
     }
-    this.compileSymbol();
+    // skip `}`
+    this.tokenizer.advance();
   }
 
   compileClassVarDec() {
     // keyword
     const keyword = this.tokenizer.keyword();
-    this.compileKeyword();
+    this.tokenizer.advance();
     // type
-    const type = this.isKeyword()
-      ? this.tokenizer.keyword()
-      : this.tokenizer.identifier();
-    this.compileType();
+    const type = this.getType();
+    this.tokenizer.advance();
     // varNames
     while (!(this.isSymbol() && this.tokenizer.symbol() === ';')) {
+      const identifier = this.tokenizer.identifier();
       // varName
       this.symbolTable.define(
-        this.tokenizer.identifier(),
+        identifier,
         type,
         convertKeywordToSymbolKind(keyword)
       );
-      this.compileIdentifier(true);
+      this.tokenizer.advance();
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
         // ','
-        this.compileSymbol();
+        this.tokenizer.advance();
       }
     }
     // ';'
-    this.compileSymbol();
+    this.tokenizer.advance();
   }
 
   private isClassVarDec() {
@@ -81,33 +79,37 @@ export default class CompilationEngine {
     return keyword === 'static' || keyword === 'field';
   }
 
-  private compileType() {
+  private getType() {
     if (this.isKeyword()) {
-      this.compileKeyword();
-    } else {
-      this.compileIdentifier();
+      return this.tokenizer.keyword();
     }
+    if (this.isIdentifier()) {
+      return this.tokenizer.identifier();
+    }
+    // TODO: need way to get current token value
+    throw new Error(
+      'Called getType() on symbol that is not keyword or identifier'
+    );
   }
 
   compileSubroutineDec() {
+    this.symbolTable.startSubroutine();
     // keyword
-    this.compileKeyword();
+    this.tokenizer.advance();
     // 'void' | type
-    this.compileType();
+    this.tokenizer.advance();
     // subroutineName
-    this.symbolTable.startSubrouting();
-    this.symbolTable.define(
-      this.tokenizer.identifier(),
-      'subroutine',
-      SymbolKind.None
-    );
-    this.compileIdentifier(true);
+    const subroutineName = this.tokenizer.identifier();
+    this.tokenizer.advance();
     // '('
-    this.compileSymbol();
+    this.tokenizer.advance();
     // parameterList
-    this.compileParameterList();
+    const nLocals = this.compileParameterList();
     // ')'
-    this.compileSymbol();
+    this.tokenizer.advance();
+
+    this.vmWriter.writeFunction(subroutineName, nLocals);
+
     // subroutineBody
     this.compileSubroutineBody();
   }
@@ -122,58 +124,52 @@ export default class CompilationEngine {
 
   private compileSubroutineBody() {
     // '{'
-    this.compileSymbol();
+    this.tokenizer.advance();
     while (this.isVarDec()) {
       this.compileVarDec();
     }
     this.compileStatements();
     // '}'
-    this.compileSymbol();
+    this.tokenizer.advance();
   }
 
   compileParameterList() {
+    let nLocals = 0;
     while (!(this.isSymbol() && this.tokenizer.symbol() === ')')) {
       // type
-      const type = this.isKeyword()
-        ? this.tokenizer.keyword()
-        : this.tokenizer.identifier();
-      this.compileType();
+      const type = this.getType();
+      this.tokenizer.advance();
       // varName
-      this.symbolTable.define(
-        this.tokenizer.identifier(),
-        type,
-        SymbolKind.Arg
-      );
-      this.compileIdentifier(true);
+      const identifier = this.tokenizer.identifier();
+      this.tokenizer.advance();
+      this.symbolTable.define(identifier, type, SymbolKind.Arg);
+      nLocals += 1;
+
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
         // ','
-        this.compileSymbol();
+        this.tokenizer.advance();
       }
     }
+    return nLocals;
   }
 
   compileVarDec() {
     // 'var'
-    this.compileKeyword();
+    this.tokenizer.advance();
     // type
-    const type = this.isKeyword()
-      ? this.tokenizer.keyword()
-      : this.tokenizer.identifier();
-    this.compileType();
+    const type = this.getType();
+    this.tokenizer.advance();
     while (!(this.isSymbol() && this.tokenizer.symbol() === ';')) {
-      this.symbolTable.define(
-        this.tokenizer.identifier(),
-        type,
-        SymbolKind.Var
-      );
-      this.compileIdentifier(true);
+      const identifier = this.tokenizer.identifier();
+      this.symbolTable.define(identifier, type, SymbolKind.Var);
+      this.tokenizer.advance();
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
         // ','
-        this.compileSymbol();
+        this.tokenizer.advance();
       }
     }
     // ';'
-    this.compileSymbol();
+    this.tokenizer.advance();
   }
 
   private isVarDec() {
@@ -217,7 +213,7 @@ export default class CompilationEngine {
     // subroutineCall
     this.compileSubroutineCall();
     // ';'
-    this.compileSymbol();
+    this.tokenizer.advance();
   }
 
   isDo(): boolean {
@@ -229,16 +225,16 @@ export default class CompilationEngine {
     this.compileIdentifier();
     if (this.isSymbol() && this.tokenizer.symbol() === '.') {
       // '.'
-      this.compileSymbol();
+      this.tokenizer.advance();
       // 'subRoutineName'
       this.compileIdentifier();
     }
     // '('
-    this.compileSymbol();
+    this.tokenizer.advance();
     // expressionList
     this.compileExpressionList();
     // ')'
-    this.compileSymbol();
+    this.tokenizer.advance();
   }
 
   compileLet() {
@@ -248,18 +244,18 @@ export default class CompilationEngine {
     this.compileIdentifier();
     if (this.tokenizer.symbol() === '[') {
       // '['
-      this.compileSymbol();
+      this.tokenizer.advance();
       // expression
       this.compileExpression();
       // ']'
-      this.compileSymbol();
+      this.tokenizer.advance();
     }
     // '='
-    this.compileSymbol();
+    this.tokenizer.advance();
     // expression
     this.compileExpression();
     // ';'
-    this.compileSymbol();
+    this.tokenizer.advance();
   }
 
   isLet(): boolean {
@@ -270,17 +266,17 @@ export default class CompilationEngine {
     // 'while'
     this.compileKeyword();
     // '('
-    this.compileSymbol();
+    this.tokenizer.advance();
     // expression
     this.compileExpression();
     // ')'
-    this.compileSymbol();
+    this.tokenizer.advance();
     // '{'
-    this.compileSymbol();
+    this.tokenizer.advance();
     // statements
     this.compileStatements();
     // '}'
-    this.compileSymbol();
+    this.tokenizer.advance();
   }
 
   isWhile(): boolean {
@@ -295,7 +291,7 @@ export default class CompilationEngine {
       this.compileExpression();
     }
     // ';'
-    this.compileSymbol();
+    this.tokenizer.advance();
   }
 
   isReturn(): boolean {
@@ -306,26 +302,26 @@ export default class CompilationEngine {
     // 'if'
     this.compileKeyword();
     // '('
-    this.compileSymbol();
+    this.tokenizer.advance();
     // expression
     this.compileExpression();
     // ')'
-    this.compileSymbol();
+    this.tokenizer.advance();
     // '{'
-    this.compileSymbol();
+    this.tokenizer.advance();
     // statements
     this.compileStatements();
     // '}'
-    this.compileSymbol();
+    this.tokenizer.advance();
     if (this.isKeyword() && this.tokenizer.keyword() === 'else') {
       // 'else'
       this.compileKeyword();
       // '{'
-      this.compileSymbol();
+      this.tokenizer.advance();
       // statements
       this.compileStatements();
       // '}'
-      this.compileSymbol();
+      this.tokenizer.advance();
     }
   }
 
@@ -361,11 +357,11 @@ export default class CompilationEngine {
           // varName
           this.compileIdentifier();
           // '['
-          this.compileSymbol();
+          this.tokenizer.advance();
           // expression
           this.compileExpression();
           // ']'
-          this.compileSymbol();
+          this.tokenizer.advance();
           break;
         // subRoutineCall
         case '(':
@@ -383,15 +379,15 @@ export default class CompilationEngine {
         // (expression)
         case '(':
           // '('
-          this.compileSymbol();
+          this.tokenizer.advance();
           // expression
           this.compileExpression();
           // ')'
-          this.compileSymbol();
+          this.tokenizer.advance();
           break;
         // unaryOp term
         default:
-          this.compileSymbol();
+          this.tokenizer.advance();
           this.compileTerm();
       }
     }
@@ -409,7 +405,7 @@ export default class CompilationEngine {
   }
 
   compileOp() {
-    this.compileSymbol();
+    this.tokenizer.advance();
   }
 
   isOp(): boolean {
@@ -425,7 +421,7 @@ export default class CompilationEngine {
     while (this.isExpression()) {
       this.compileExpression();
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
-        this.compileSymbol();
+        this.tokenizer.advance();
       }
     }
   }
@@ -458,22 +454,6 @@ export default class CompilationEngine {
     this.tokenizer.advance();
   }
 
-  private compileSymbol() {
-    let symbol = this.tokenizer.symbol();
-    switch (symbol) {
-      case '<':
-        symbol = '&lt;';
-        break;
-      case '>':
-        symbol = '&gt;';
-        break;
-      case '&':
-        symbol = '&amp;';
-        break;
-    }
-    this.tokenizer.advance();
-  }
-
   private compileIntegerConstant() {
     this.tokenizer.advance();
   }
@@ -482,7 +462,7 @@ export default class CompilationEngine {
     this.tokenizer.advance();
   }
 
-  private compileIdentifier(isDeclaration = false) {
+  private compileIdentifier() {
     this.tokenizer.advance();
   }
 }

@@ -25,6 +25,7 @@ enum ArithmeticCommand {
 
 class VMWriter {
   private outStream: WriteStream;
+  private nTabs = 0;
 
   constructor(outStream: WriteStream) {
     this.outStream = outStream;
@@ -44,9 +45,22 @@ class VMWriter {
 
   writeCall(name: string, nArgs: number) {}
 
-  writeFunction(name: string, nLocals: number) {}
+  writeFunction(name: string, nLocals: number) {
+    const line = `function ${name} ${nLocals}`;
+    this.write(line);
+    this.indent();
+  }
 
   writeReturn() {}
+
+  private write(line: string) {
+    const tabs = ' '.repeat(this.nTabs);
+    this.outStream.write(`${tabs}${line}\n`);
+  }
+
+  private indent() {
+    this.nTabs += 1;
+  }
 
   close() {
     this.outStream.end();

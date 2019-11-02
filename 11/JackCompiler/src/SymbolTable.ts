@@ -33,7 +33,7 @@ class SymbolTable {
   classTable: SymbolsMap = new Map();
   subroutineTable: SymbolsMap = new Map();
 
-  startSubrouting() {
+  startSubroutine() {
     this.subroutineTable = new Map();
   }
 
