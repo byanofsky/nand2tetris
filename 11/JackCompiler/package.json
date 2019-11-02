@@ -8,6 +8,7 @@
     "start": "tsc --watch",
     "build": "tsc",
     "compile": "./dist/index.js",
+    "debug": "node --inspect-brk=9229 ./dist/index.js ../Seven",
     "test": "./bin/runTests.sh"
   },
   "author": "Brandon Yanofsky <byanofsky@me.com>",
