@@ -11,16 +11,16 @@ export enum Segment {
   Temp = 'temp'
 }
 
-enum ArithmeticCommand {
-  Add,
-  Sub,
-  Neg,
-  Eq,
-  Gt,
-  Lt,
-  And,
-  Or,
-  Not
+export enum ArithmeticCommand {
+  Add = 'add',
+  Sub = 'sub',
+  Neg = 'neg',
+  Eq = 'eq',
+  Gt = 'gt',
+  Lt = 'lt',
+  And = 'and',
+  Or = 'or',
+  Not = 'not'
 }
 
 class VMWriter {
@@ -38,7 +38,9 @@ class VMWriter {
 
   writePop(segment: Segment, index: number) {}
 
-  writeArithmetic(command: ArithmeticCommand) {}
+  writeArithmetic(command: ArithmeticCommand) {
+    this.write(command);
+  }
 
   writeLabel(label: string) {}
 
@@ -46,7 +48,10 @@ class VMWriter {
 
   writeIf(label: string) {}
 
-  writeCall(name: string, nArgs: number) {}
+  writeCall(name: string, nArgs: number) {
+    const line = `call ${name} ${nArgs}`;
+    this.write(line);
+  }
 
   writeFunction(name: string, nLocals: number) {
     const line = `function ${name} ${nLocals}`;
