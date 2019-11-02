@@ -14,21 +14,6 @@ interface IdentifierProperties {
 
 type SymbolsMap = Map<string, IdentifierProperties>;
 
-export const convertKeywordToSymbolKind = (keyword: string): SymbolKind => {
-  switch (keyword) {
-    case '':
-      return SymbolKind.Arg;
-    case 'field':
-      return SymbolKind.Field;
-    case 'static':
-      return SymbolKind.Static;
-    case 'var':
-      return SymbolKind.Var;
-    default:
-      return SymbolKind.None;
-  }
-};
-
 class SymbolTable {
   classTable: SymbolsMap = new Map();
   subroutineTable: SymbolsMap = new Map();
@@ -63,33 +48,32 @@ class SymbolTable {
     return count;
   }
 
-  kindOf(name: string): SymbolKind | undefined {
-    const props = this.getByName(name);
-    return props && props.kind;
+  kindOf(name: string): SymbolKind {
+    return this.getByName(name).kind;
   }
 
-  typeOf(name: string): string | undefined {
-    const props = this.getByName(name);
-    return props && props.type;
+  typeOf(name: string): string {
+    return this.getByName(name).type;
   }
 
-  indexOf(name: string): number | undefined {
-    const props = this.getByName(name);
-    return props && props.index;
+  indexOf(name: string): number {
+    return this.getByName(name).index;
   }
 
   has(name: string): boolean {
     return this.getByName(name) !== undefined;
   }
 
-  private getByName(name: string): IdentifierProperties | undefined {
+  private getByName(name: string): IdentifierProperties {
     if (this.subroutineTable.has(name)) {
-      return this.subroutineTable.get(name);
+      return this.subroutineTable.get(name) as IdentifierProperties;
     }
     if (this.classTable.has(name)) {
-      return this.classTable.get(name);
+      return this.classTable.get(name) as IdentifierProperties;
     }
-    return undefined;
+    throw new Error(
+      `Identifier not recognized: "${name}". May not be declared.`
+    );
   }
 
   private isSubroutineKind(kind: SymbolKind): boolean {

@@ -1,11 +1,12 @@
 import { WriteStream } from 'fs';
 import JackTokenizer from './JackTokenizer';
 import { TokenType } from './types';
-import SymbolTable, {
-  SymbolKind,
-  convertKeywordToSymbolKind
-} from './SymbolTable';
-import VMWriter, { Segment } from './VMWriter';
+import SymbolTable, { SymbolKind } from './SymbolTable';
+import VMWriter, { Segment, ArithmeticCommand } from './VMWriter';
+import {
+  convertKeywordToSymbolKind,
+  convertSymbolKindToSegment
+} from './utils';
 
 export default class CompilationEngine {
   private tokenizer: JackTokenizer;
@@ -336,15 +337,18 @@ export default class CompilationEngine {
   compileExpression() {
     this.compileTerm();
     while (this.isOp()) {
-      this.compileOp();
+      const writeOp = this.compileOp();
       this.compileTerm();
+      writeOp();
     }
   }
 
   compileTerm() {
     // integerConstant
     if (this.isIntegerConstant()) {
-      this.compileIntegerConstant();
+      const intVal = this.tokenizer.intVal();
+      this.vmWriter.writePush(Segment.Const, intVal);
+      this.tokenizer.advance();
     }
     // stringConstant
     else if (this.isStringConstant()) {
@@ -374,7 +378,12 @@ export default class CompilationEngine {
           break;
         // varName
         default:
-          this.compileIdentifier();
+          const identifier = this.tokenizer.identifier();
+          this.tokenizer.advance();
+          const kind = this.symbolTable.kindOf(identifier);
+          const segment = convertSymbolKindToSegment(kind);
+          const index = this.symbolTable.indexOf(identifier);
+          this.vmWriter.writePush(segment, index);
       }
     } else if (this.isSymbol()) {
       // (expression) | unaryOp term
@@ -408,8 +417,63 @@ export default class CompilationEngine {
     );
   }
 
+  /**
+   * Op is not written at moment of compilation. Therefore, compileOp
+   * returns a function that should be invoked when write should occur.
+   * This allows an expression like:
+   * `1 + 2`
+   * To be compiled as:
+   * ```
+   * 1
+   * 2
+   * add
+   * ```
+   */
   compileOp() {
+    const op = this.tokenizer.symbol();
     this.tokenizer.advance();
+
+    if (op === '*') {
+      return () => this.vmWriter.writeCall('Math.multiply', 2);
+    }
+    if (op === '/') {
+      return () => this.vmWriter.writeCall('Math.divide', 2);
+    }
+
+    let command: ArithmeticCommand;
+    switch (op) {
+      case '+': {
+        command = ArithmeticCommand.Add;
+        break;
+      }
+      case '-': {
+        command = ArithmeticCommand.Sub;
+        break;
+      }
+      case '&': {
+        command = ArithmeticCommand.And;
+        break;
+      }
+      case '|': {
+        command = ArithmeticCommand.Or;
+        break;
+      }
+      case '<': {
+        command = ArithmeticCommand.Lt;
+        break;
+      }
+      case '>': {
+        command = ArithmeticCommand.Gt;
+        break;
+      }
+      case '=': {
+        command = ArithmeticCommand.Eq;
+        break;
+      }
+      default:
+        throw new Error(`Not a recognized operation: "${op}"`);
+    }
+    return () => this.vmWriter.writeArithmetic(command);
   }
 
   isOp(): boolean {
@@ -455,10 +519,6 @@ export default class CompilationEngine {
   }
 
   private compileKeyword() {
-    this.tokenizer.advance();
-  }
-
-  private compileIntegerConstant() {
     this.tokenizer.advance();
   }
 
