@@ -213,7 +213,7 @@ export default class CompilationEngine {
 
   compileDo() {
     // 'do'
-    this.compileKeyword();
+    this.tokenizer.advance();
     // subroutineCall
     this.compileSubroutineCall();
     // ';'
@@ -226,19 +226,24 @@ export default class CompilationEngine {
 
   compileSubroutineCall() {
     // subroutineName | className | varName
-    this.compileIdentifier();
+    // TODO: not handling varName, needs to look it up
+    let subroutineName = this.tokenizer.identifier();
+    this.tokenizer.advance();
     if (this.isSymbol() && this.tokenizer.symbol() === '.') {
       // '.'
       this.tokenizer.advance();
       // 'subRoutineName'
-      this.compileIdentifier();
+      const idenitifier = this.tokenizer.identifier();
+      this.tokenizer.advance();
+      subroutineName = `${subroutineName}.${idenitifier}`;
     }
     // '('
     this.tokenizer.advance();
     // expressionList
-    this.compileExpressionList();
+    const nArgs = this.compileExpressionList();
     // ')'
     this.tokenizer.advance();
+    this.vmWriter.writeCall(subroutineName, nArgs);
   }
 
   compileLet() {
@@ -489,12 +494,15 @@ export default class CompilationEngine {
   }
 
   compileExpressionList() {
+    let nArgs = 0;
     while (this.isExpression()) {
       this.compileExpression();
+      nArgs += 1;
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
         this.tokenizer.advance();
       }
     }
+    return nArgs;
   }
 
   isExpression(): boolean {
