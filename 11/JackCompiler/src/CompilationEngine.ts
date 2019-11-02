@@ -5,7 +5,7 @@ import SymbolTable, {
   SymbolKind,
   convertKeywordToSymbolKind
 } from './SymbolTable';
-import VMWriter from './VMWriter';
+import VMWriter, { Segment } from './VMWriter';
 
 export default class CompilationEngine {
   private tokenizer: JackTokenizer;
@@ -285,11 +285,15 @@ export default class CompilationEngine {
 
   compileReturn() {
     // 'return'
-    this.compileKeyword();
+    this.tokenizer.advance();
     // 'expression'
     if (!(this.isSymbol() && this.tokenizer.symbol() === ';')) {
       this.compileExpression();
+    } else {
+      // Return void, push `0` to stack
+      this.vmWriter.writePush(Segment.Const, 0);
     }
+    this.vmWriter.writeReturn();
     // ';'
     this.tokenizer.advance();
   }

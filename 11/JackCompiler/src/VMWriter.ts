@@ -1,7 +1,7 @@
 import { WriteStream } from 'fs';
 
-enum Segment {
-  Const = 'const',
+export enum Segment {
+  Const = 'constant',
   Arg = 'arg',
   Local = 'local',
   Static = 'static',
@@ -31,7 +31,10 @@ class VMWriter {
     this.outStream = outStream;
   }
 
-  writePush(segment: Segment, index: number) {}
+  writePush(segment: Segment, index: number) {
+    const line = `push ${segment} ${index}`;
+    this.write(line);
+  }
 
   writePop(segment: Segment, index: number) {}
 
@@ -51,15 +54,22 @@ class VMWriter {
     this.indent();
   }
 
-  writeReturn() {}
+  writeReturn() {
+    this.write('return');
+    this.dedent();
+  }
 
   private write(line: string) {
-    const tabs = ' '.repeat(this.nTabs);
+    const tabs = '\t'.repeat(this.nTabs);
     this.outStream.write(`${tabs}${line}\n`);
   }
 
   private indent() {
     this.nTabs += 1;
+  }
+
+  private dedent() {
+    this.nTabs -= 1;
   }
 
   close() {
