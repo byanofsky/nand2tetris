@@ -65,8 +65,9 @@ class VMWriter {
   }
 
   private write(line: string) {
-    const tabs = '\t'.repeat(this.nTabs);
-    this.outStream.write(`${tabs}${line}\n`);
+    // const tabs = '\t'.repeat(this.nTabs);
+    // this.outStream.write(`${tabs}${line}\n`);
+    this.outStream.write(`${line}\n`);
   }
 
   private indent() {
