@@ -45,11 +45,20 @@ class VMWriter {
     this.write(command);
   }
 
-  writeLabel(label: string) {}
+  writeLabel(label: string) {
+    const line = `label ${label}`;
+    this.write(line);
+  }
 
-  writeGoto(label: string) {}
+  writeGoto(label: string) {
+    const line = `goto ${label}`;
+    this.write(line);
+  }
 
-  writeIf(label: string) {}
+  writeIf(label: string) {
+    const line = `if-goto ${label}`;
+    this.write(line);
+  }
 
   writeCall(name: string, nArgs: number) {
     const line = `call ${name} ${nArgs}`;
