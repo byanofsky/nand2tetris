@@ -36,7 +36,10 @@ class VMWriter {
     this.write(line);
   }
 
-  writePop(segment: Segment, index: number) {}
+  writePop(segment: Segment, index: number) {
+    const line = `pop ${segment} ${index}`;
+    this.write(line);
+  }
 
   writeArithmetic(command: ArithmeticCommand) {
     this.write(command);
