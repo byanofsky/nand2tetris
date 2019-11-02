@@ -370,7 +370,7 @@ export default class CompilationEngine {
       this.compileStringConstant();
     } else if (this.isKeyword()) {
       // keywordConstant
-      this.compileKeyword();
+      this.compileKeywordConstant();
     } else if (this.isIdentifier()) {
       // varName | varName[expression] | subRoutineCall
       const nextToken = this.tokenizer.peekNextToken();
@@ -418,6 +418,29 @@ export default class CompilationEngine {
           this.tokenizer.advance();
           this.compileTerm();
       }
+    }
+  }
+
+  compileKeywordConstant() {
+    const keyword = this.tokenizer.keyword();
+    this.tokenizer.advance();
+    switch (keyword) {
+      case 'true': {
+        this.vmWriter.writePush(Segment.Const, 1);
+        this.vmWriter.writeArithmetic(ArithmeticCommand.Neg);
+        return;
+      }
+      case 'false':
+      case 'null': {
+        this.vmWriter.writePush(Segment.Const, 0);
+        return;
+      }
+      case 'this': {
+        this.vmWriter.writePush(Segment.Pointer, 0);
+        return;
+      }
+      default:
+        throw new Error(`Keyword Constant not recognized: ${keyword}`);
     }
   }
 
