@@ -415,8 +415,9 @@ export default class CompilationEngine {
           break;
         // unaryOp term
         default:
-          this.tokenizer.advance();
+          const writeOp = this.compileUnaryOp();
           this.compileTerm();
+          writeOp();
       }
     }
   }
@@ -517,6 +518,25 @@ export default class CompilationEngine {
   isOp(): boolean {
     const opList = ['+', '-', '*', '/', '&', '|', '<', '>', '='];
     return this.isSymbol() && opList.includes(this.tokenizer.symbol());
+  }
+
+  compileUnaryOp() {
+    const op = this.tokenizer.symbol();
+    this.tokenizer.advance();
+    let command: ArithmeticCommand;
+    switch (op) {
+      case '-': {
+        command = ArithmeticCommand.Neg;
+        break;
+      }
+      case '~': {
+        command = ArithmeticCommand.Not;
+        break;
+      }
+      default:
+        throw new Error(`Not a recongized unary operation: "${op}"`);
+    }
+    return () => this.vmWriter.writeArithmetic(command);
   }
 
   isUnaryOp(): boolean {
