@@ -12,6 +12,7 @@ export default class CompilationEngine {
   private tokenizer: JackTokenizer;
   private symbolTable: SymbolTable;
   private vmWriter: VMWriter;
+  private className: string | null = null;
 
   constructor(
     tokenizer: JackTokenizer,
@@ -34,6 +35,7 @@ export default class CompilationEngine {
     // TODO: better way to handle advancing
     // maybe via `this.advance(n)`
     this.tokenizer.advance();
+    this.className = this.tokenizer.identifier();
     this.tokenizer.advance();
     this.tokenizer.advance();
     while (this.isClassVarDec()) {
@@ -109,7 +111,8 @@ export default class CompilationEngine {
     // ')'
     this.tokenizer.advance();
 
-    this.vmWriter.writeFunction(subroutineName, nLocals);
+    // TODO: extract to helper so we don't repeat className
+    this.vmWriter.writeFunction(`${this.className}.${subroutineName}`, nLocals);
 
     // subroutineBody
     this.compileSubroutineBody();
