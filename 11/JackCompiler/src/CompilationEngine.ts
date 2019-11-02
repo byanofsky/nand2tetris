@@ -216,6 +216,8 @@ export default class CompilationEngine {
     this.tokenizer.advance();
     // subroutineCall
     this.compileSubroutineCall();
+    // pop the returned value
+    this.vmWriter.writePop(Segment.Temp, 0);
     // ';'
     this.tokenizer.advance();
   }
