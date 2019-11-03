@@ -108,15 +108,21 @@ export default class CompilationEngine {
     // '('
     this.tokenizer.advance();
     // parameterList
-    const nLocals = this.compileParameterList();
+    this.compileParameterList();
     // ')'
     this.tokenizer.advance();
+
+    // subroutineBody
+    // TODO: Fix, this is super confusing
+    const {
+      nLocals,
+      continueCompileSubroutineBody
+    } = this.compileSubroutineBody();
 
     // TODO: extract to helper so we don't repeat className
     this.vmWriter.writeFunction(`${this.className}.${subroutineName}`, nLocals);
 
-    // subroutineBody
-    this.compileSubroutineBody();
+    continueCompileSubroutineBody();
   }
 
   private isSubroutineDec() {
@@ -127,19 +133,32 @@ export default class CompilationEngine {
     return ['constructor', 'function', 'method'].includes(keyword);
   }
 
-  private compileSubroutineBody() {
+  private compileSubroutineBody(): {
+    nLocals: number;
+    continueCompileSubroutineBody: Function;
+  } {
+    let nLocals = 0;
+
     // '{'
     this.tokenizer.advance();
     while (this.isVarDec()) {
-      this.compileVarDec();
+      const nVarDec = this.compileVarDec();
+      nLocals += nVarDec;
     }
-    this.compileStatements();
-    // '}'
-    this.tokenizer.advance();
+
+    const continueCompileSubroutineBody = () => {
+      this.compileStatements();
+      // '}'
+      this.tokenizer.advance();
+    };
+
+    return {
+      nLocals,
+      continueCompileSubroutineBody
+    };
   }
 
   compileParameterList() {
-    let nLocals = 0;
     while (!(this.isSymbol() && this.tokenizer.symbol() === ')')) {
       // type
       const type = this.getType();
@@ -148,17 +167,17 @@ export default class CompilationEngine {
       const identifier = this.tokenizer.identifier();
       this.tokenizer.advance();
       this.symbolTable.define(identifier, type, SymbolKind.Arg);
-      nLocals += 1;
 
       if (this.isSymbol() && this.tokenizer.symbol() === ',') {
         // ','
         this.tokenizer.advance();
       }
     }
-    return nLocals;
   }
 
-  compileVarDec() {
+  compileVarDec(): number {
+    let nVarDec = 0;
+
     // 'var'
     this.tokenizer.advance();
     // type
@@ -172,9 +191,12 @@ export default class CompilationEngine {
         // ','
         this.tokenizer.advance();
       }
+      nVarDec += 1;
     }
     // ';'
     this.tokenizer.advance();
+
+    return nVarDec;
   }
 
   private isVarDec() {
