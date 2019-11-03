@@ -61,7 +61,7 @@ class SymbolTable {
   }
 
   has(name: string): boolean {
-    return this.getByName(name) !== undefined;
+    return this.subroutineTable.has(name) || this.classTable.has(name);
   }
 
   private getByName(name: string): IdentifierProperties {

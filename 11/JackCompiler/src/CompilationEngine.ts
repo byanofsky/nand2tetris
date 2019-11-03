@@ -14,6 +14,7 @@ export default class CompilationEngine {
   private symbolTable: SymbolTable;
   private vmWriter: VMWriter;
   private className: string | null = null;
+  private instanceSize: number = 0;
 
   constructor(
     tokenizer: JackTokenizer,
@@ -42,6 +43,7 @@ export default class CompilationEngine {
     while (this.isClassVarDec()) {
       this.compileClassVarDec();
     }
+    this.instanceSize = this.symbolTable.varCount(SymbolKind.Field);
     while (this.isSubroutineDec()) {
       this.compileSubroutineDec();
     }
@@ -98,7 +100,8 @@ export default class CompilationEngine {
 
   compileSubroutineDec() {
     this.symbolTable.startSubroutine();
-    // keyword
+    // keyword: 'constructor' | 'function' | 'method'
+    const subType = this.tokenizer.keyword();
     this.tokenizer.advance();
     // 'void' | type
     this.tokenizer.advance();
@@ -121,6 +124,18 @@ export default class CompilationEngine {
 
     // TODO: extract to helper so we don't repeat className
     this.vmWriter.writeFunction(`${this.className}.${subroutineName}`, nLocals);
+
+    if (subType === 'constructor') {
+      // Alloc memory for instance and assign base to THIS
+      this.vmWriter.writePush(Segment.Const, this.instanceSize);
+      this.vmWriter.writeCall('Memory.alloc', 1);
+      this.vmWriter.writePop(Segment.Pointer, 0);
+    }
+    if (subType === 'method') {
+      // Assign arg 0 as THIS
+      this.vmWriter.writePush(Segment.Arg, 0);
+      this.vmWriter.writePop(Segment.Pointer, 0);
+    }
 
     continueCompileSubroutineBody();
   }
@@ -251,24 +266,46 @@ export default class CompilationEngine {
 
   compileSubroutineCall() {
     // subroutineName | className | varName
-    // TODO: not handling varName, needs to look it up
-    let subroutineName = this.tokenizer.identifier();
+    const idenitifier = this.tokenizer.identifier();
     this.tokenizer.advance();
+    let nArgs = 0;
+    let fullSubroutineName;
     if (this.isSymbol() && this.tokenizer.symbol() === '.') {
+      let className = idenitifier;
+      if (this.symbolTable.has(idenitifier)) {
+        // subroutineName is a varName
+        // Push instance as Arg 0 so it can be assigned to THIS in method
+        const kind = this.symbolTable.kindOf(idenitifier);
+        const segment = convertSymbolKindToSegment(kind);
+        const index = this.symbolTable.indexOf(idenitifier);
+        this.vmWriter.writePush(segment, index);
+        nArgs += 1;
+
+        // Get className from symbol table
+        const type = this.symbolTable.typeOf(idenitifier);
+        className = type;
+      }
+
       // '.'
       this.tokenizer.advance();
       // 'subRoutineName'
-      const idenitifier = this.tokenizer.identifier();
+      const methodName = this.tokenizer.identifier();
       this.tokenizer.advance();
-      subroutineName = `${subroutineName}.${idenitifier}`;
+      fullSubroutineName = `${className}.${methodName}`;
+    } else {
+      // Is a local method / function
+      fullSubroutineName = `${this.className}.${idenitifier}`;
+      // Push THIS to stack as Arg 0
+      this.vmWriter.writePush(Segment.Pointer, 0);
+      nArgs += 1;
     }
     // '('
     this.tokenizer.advance();
     // expressionList
-    const nArgs = this.compileExpressionList();
+    nArgs += this.compileExpressionList();
     // ')'
     this.tokenizer.advance();
-    this.vmWriter.writeCall(subroutineName, nArgs);
+    this.vmWriter.writeCall(fullSubroutineName, nArgs);
   }
 
   compileLet() {
