@@ -38,4 +38,5 @@ export const convertSymbolKindToSegment = (kind: SymbolKind): Segment => {
   }
 };
 
-export const generateLabel = () => `l-${uuid.v4()}`;
+export const generateLabel = (prefix?: string) =>
+  prefix ? `l-${prefix}-${uuid.v4()}` : `l-${uuid.v4()}`;

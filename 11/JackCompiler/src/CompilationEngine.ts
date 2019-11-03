@@ -280,8 +280,8 @@ export default class CompilationEngine {
   }
 
   compileWhile() {
-    const whileLabel = generateLabel();
-    const breakLabel = generateLabel();
+    const whileLabel = generateLabel('while');
+    const breakLabel = generateLabel('breakWhile');
 
     this.vmWriter.writeLabel(whileLabel);
 
@@ -294,10 +294,10 @@ export default class CompilationEngine {
     // ')'
     this.tokenizer.advance();
 
-    // Negate conditional statement.
+    // Not conditional statement.
     // Therefore, if conditional is false, goto break label.
     // Otherwise, continue through while block.
-    this.vmWriter.writeArithmetic(ArithmeticCommand.Neg);
+    this.vmWriter.writeArithmetic(ArithmeticCommand.Not);
     this.vmWriter.writeIf(breakLabel);
 
     // '{'
@@ -336,20 +336,34 @@ export default class CompilationEngine {
   }
 
   compileIf() {
+    const falseLabel = generateLabel('else');
+    const breakLabel = generateLabel('breakIf');
+
     // 'if'
-    this.compileKeyword();
+    this.tokenizer.advance();
     // '('
     this.tokenizer.advance();
     // expression
     this.compileExpression();
     // ')'
     this.tokenizer.advance();
+
+    // Not conditional statement.
+    // Therefore, if conditional is false, goto `false` label,
+    // which executes else (if it exists) then continues execution.
+    // Otherwise, execute `true` block and jump to `break` label
+    this.vmWriter.writeArithmetic(ArithmeticCommand.Not);
+    this.vmWriter.writeIf(falseLabel);
+
     // '{'
     this.tokenizer.advance();
     // statements
     this.compileStatements();
     // '}'
     this.tokenizer.advance();
+    this.vmWriter.writeGoto(breakLabel);
+
+    this.vmWriter.writeLabel(falseLabel);
     if (this.isKeyword() && this.tokenizer.keyword() === 'else') {
       // 'else'
       this.compileKeyword();
@@ -360,6 +374,8 @@ export default class CompilationEngine {
       // '}'
       this.tokenizer.advance();
     }
+
+    this.vmWriter.writeLabel(breakLabel);
   }
 
   isIf(): boolean {

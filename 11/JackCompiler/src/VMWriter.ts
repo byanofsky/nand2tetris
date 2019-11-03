@@ -2,7 +2,7 @@ import { WriteStream } from 'fs';
 
 export enum Segment {
   Const = 'constant',
-  Arg = 'arg',
+  Arg = 'argument',
   Local = 'local',
   Static = 'static',
   This = 'this',
