@@ -317,19 +317,31 @@ export default class CompilationEngine {
     const kind = this.symbolTable.kindOf(idenitifier);
     const segment = convertSymbolKindToSegment(kind);
     const index = this.symbolTable.indexOf(idenitifier);
+    let popToSegment = segment;
+    let popToIndex = index;
     if (this.tokenizer.symbol() === '[') {
+      // Push base of Array
+      this.vmWriter.writePush(segment, index);
       // '['
       this.tokenizer.advance();
       // expression
       this.compileExpression();
       // ']'
       this.tokenizer.advance();
+      // Add base of Array plus Index
+      this.vmWriter.writeArithmetic(ArithmeticCommand.Add);
+      // Pop to THAT
+      this.vmWriter.writePop(Segment.Pointer, 1);
+
+      // Update popTo Segment and Index
+      popToSegment = Segment.That;
+      popToIndex = 0;
     }
     // '='
     this.tokenizer.advance();
     // expression
     this.compileExpression();
-    this.vmWriter.writePop(segment, index);
+    this.vmWriter.writePop(popToSegment, popToIndex);
     // ';'
     this.tokenizer.advance();
   }
@@ -459,7 +471,19 @@ export default class CompilationEngine {
     }
     // stringConstant
     else if (this.isStringConstant()) {
-      this.compileStringConstant();
+      // TODO: streamline this process
+      const stringVal = this.tokenizer.stringVal();
+      this.tokenizer.advance();
+      // Create new String with length of stringVal
+      // Store in TEMP 0
+      this.vmWriter.writePush(Segment.Const, stringVal.length);
+      this.vmWriter.writeCall('String.new', 1);
+      // Create string by appending chars
+      for (let i = 0; i < stringVal.length; i++) {
+        const charCode = stringVal[i].charCodeAt(0);
+        this.vmWriter.writePush(Segment.Const, charCode);
+        this.vmWriter.writeCall('String.appendChar', 2);
+      }
     } else if (this.isKeyword()) {
       // keywordConstant
       this.compileKeywordConstant();
@@ -468,16 +492,32 @@ export default class CompilationEngine {
       const nextToken = this.tokenizer.peekNextToken();
       switch (nextToken) {
         // varName[expression]
-        case '[':
-          // varName
-          this.compileIdentifier();
+        case '[': {
+          // TODO: This sequence is inefficient
+          // Array
+          // look up Array base by varName
+          const arrayIdentifier = this.tokenizer.identifier();
+          this.tokenizer.advance();
+          const kind = this.symbolTable.kindOf(arrayIdentifier);
+          const segment = convertSymbolKindToSegment(kind);
+          const index = this.symbolTable.indexOf(arrayIdentifier);
+          // Push Array base to stack
+          this.vmWriter.writePush(segment, index);
+
           // '['
           this.tokenizer.advance();
           // expression
           this.compileExpression();
           // ']'
           this.tokenizer.advance();
+
+          // Add Array base and index, and assign to THAT
+          this.vmWriter.writeArithmetic(ArithmeticCommand.Add);
+          this.vmWriter.writePop(Segment.Pointer, 1);
+          // Push stored Array value to stack
+          this.vmWriter.writePush(Segment.That, 0);
           break;
+        }
         // subRoutineCall
         case '(':
         case '.':
@@ -672,14 +712,6 @@ export default class CompilationEngine {
   }
 
   private compileKeyword() {
-    this.tokenizer.advance();
-  }
-
-  private compileStringConstant() {
-    this.tokenizer.advance();
-  }
-
-  private compileIdentifier() {
     this.tokenizer.advance();
   }
 }
