@@ -1,0 +1,435 @@
+function Ball.new 0
+push constant 15
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 0
+push argument 1
+pop this 1
+push argument 2
+pop this 10
+push argument 3
+push constant 6
+sub
+pop this 11
+push argument 4
+pop this 12
+push argument 5
+push constant 6
+sub
+pop this 13
+push constant 0
+pop this 14
+push pointer 0
+call Ball.show 1
+pop temp 0
+push pointer 0
+return
+function Ball.dispose 0
+push argument 0
+pop pointer 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Ball.show 0
+push argument 0
+pop pointer 0
+push constant 1
+neg
+call Screen.setColor 1
+pop temp 0
+push pointer 0
+call Ball.draw 1
+pop temp 0
+push constant 0
+return
+function Ball.hide 0
+push argument 0
+pop pointer 0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push pointer 0
+call Ball.draw 1
+pop temp 0
+push constant 0
+return
+function Ball.draw 0
+push argument 0
+pop pointer 0
+push this 0
+push this 1
+push this 0
+push constant 5
+add
+push this 1
+push constant 5
+add
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+return
+function Ball.getLeft 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function Ball.getRight 0
+push argument 0
+pop pointer 0
+push this 0
+push constant 5
+add
+return
+function Ball.setDestination 3
+push argument 0
+pop pointer 0
+push argument 1
+push this 0
+sub
+pop this 2
+push argument 2
+push this 1
+sub
+pop this 3
+push this 2
+call Math.abs 1
+pop local 0
+push this 3
+call Math.abs 1
+pop local 1
+push local 0
+push local 1
+lt
+pop this 7
+push this 7
+not
+if-goto l-else-818418e3-a897-48cb-9baf-a02b4b731531
+push local 0
+pop local 2
+push local 1
+pop local 0
+push local 2
+pop local 1
+push this 1
+push argument 2
+lt
+pop this 8
+push this 0
+push argument 1
+lt
+pop this 9
+goto l-breakIf-068791ce-ca28-4249-96f6-550f560f486a
+label l-else-818418e3-a897-48cb-9baf-a02b4b731531
+push this 0
+push argument 1
+lt
+pop this 8
+push this 1
+push argument 2
+lt
+pop this 9
+label l-breakIf-068791ce-ca28-4249-96f6-550f560f486a
+push constant 2
+push local 1
+call Math.multiply 2
+push local 0
+sub
+pop this 4
+push constant 2
+push local 1
+call Math.multiply 2
+pop this 5
+push constant 2
+push local 1
+push local 0
+sub
+call Math.multiply 2
+pop this 6
+push constant 0
+return
+function Ball.move 0
+push argument 0
+pop pointer 0
+push pointer 0
+call Ball.hide 1
+pop temp 0
+push this 4
+push constant 0
+lt
+not
+if-goto l-else-e37afb5b-98a4-48ce-a78d-780aa8813849
+push this 4
+push this 5
+add
+pop this 4
+goto l-breakIf-632d2cc1-d59a-4a21-90d4-32bb19365350
+label l-else-e37afb5b-98a4-48ce-a78d-780aa8813849
+push this 4
+push this 6
+add
+pop this 4
+push this 9
+not
+if-goto l-else-f00c3f71-7c0b-40eb-9f3d-cd595e308c17
+push this 7
+not
+if-goto l-else-d9c1ac01-55eb-4235-bad8-e3209e09c231
+push this 0
+push constant 4
+add
+pop this 0
+goto l-breakIf-f3f32fae-0892-444e-a847-b4dfec2271d7
+label l-else-d9c1ac01-55eb-4235-bad8-e3209e09c231
+push this 1
+push constant 4
+add
+pop this 1
+label l-breakIf-f3f32fae-0892-444e-a847-b4dfec2271d7
+goto l-breakIf-2fecfc8a-8795-46c5-bc0e-1f2555dab612
+label l-else-f00c3f71-7c0b-40eb-9f3d-cd595e308c17
+push this 7
+not
+if-goto l-else-e2ea230c-0667-4102-9259-9cf3d744637c
+push this 0
+push constant 4
+sub
+pop this 0
+goto l-breakIf-4f6a69d3-b838-4c23-9d8f-f80406997e7d
+label l-else-e2ea230c-0667-4102-9259-9cf3d744637c
+push this 1
+push constant 4
+sub
+pop this 1
+label l-breakIf-4f6a69d3-b838-4c23-9d8f-f80406997e7d
+label l-breakIf-2fecfc8a-8795-46c5-bc0e-1f2555dab612
+label l-breakIf-632d2cc1-d59a-4a21-90d4-32bb19365350
+push this 8
+not
+if-goto l-else-ff93dcc8-8b59-4a0b-93c6-21feb205d0ee
+push this 7
+not
+if-goto l-else-60a052fc-a515-4865-9c37-5d58d3951703
+push this 1
+push constant 4
+add
+pop this 1
+goto l-breakIf-660c43f2-2747-4086-966a-5fea44425eec
+label l-else-60a052fc-a515-4865-9c37-5d58d3951703
+push this 0
+push constant 4
+add
+pop this 0
+label l-breakIf-660c43f2-2747-4086-966a-5fea44425eec
+goto l-breakIf-37878c9f-bd55-41db-87b2-d85d36d8daf4
+label l-else-ff93dcc8-8b59-4a0b-93c6-21feb205d0ee
+push this 7
+not
+if-goto l-else-3f5dd334-f2a3-4662-8d77-ee38e91637fd
+push this 1
+push constant 4
+sub
+pop this 1
+goto l-breakIf-89f13e0b-c506-46f8-9698-9b6b76bbbb5f
+label l-else-3f5dd334-f2a3-4662-8d77-ee38e91637fd
+push this 0
+push constant 4
+sub
+pop this 0
+label l-breakIf-89f13e0b-c506-46f8-9698-9b6b76bbbb5f
+label l-breakIf-37878c9f-bd55-41db-87b2-d85d36d8daf4
+push this 0
+push this 10
+gt
+not
+not
+if-goto l-else-4062e80c-e8c7-4d32-a7a4-2c5f11b2e415
+push constant 1
+pop this 14
+push this 10
+pop this 0
+goto l-breakIf-2b81a7cd-7c18-4e6d-bf83-335a7a859951
+label l-else-4062e80c-e8c7-4d32-a7a4-2c5f11b2e415
+label l-breakIf-2b81a7cd-7c18-4e6d-bf83-335a7a859951
+push this 0
+push this 11
+lt
+not
+not
+if-goto l-else-73308b0d-8403-4aa6-a9fc-4285b9f81934
+push constant 2
+pop this 14
+push this 11
+pop this 0
+goto l-breakIf-138bde9f-8c0b-4bb2-b2a4-e6b6d93ce39a
+label l-else-73308b0d-8403-4aa6-a9fc-4285b9f81934
+label l-breakIf-138bde9f-8c0b-4bb2-b2a4-e6b6d93ce39a
+push this 1
+push this 12
+gt
+not
+not
+if-goto l-else-efb8c3f5-0d85-40c4-87f7-873e2eb0bfe7
+push constant 3
+pop this 14
+push this 12
+pop this 1
+goto l-breakIf-4ef2a90e-9d6b-4b6a-977e-c91406ee8c6a
+label l-else-efb8c3f5-0d85-40c4-87f7-873e2eb0bfe7
+label l-breakIf-4ef2a90e-9d6b-4b6a-977e-c91406ee8c6a
+push this 1
+push this 13
+lt
+not
+not
+if-goto l-else-a0c30bc1-a626-40a4-9474-ed1d366be4d0
+push constant 4
+pop this 14
+push this 13
+pop this 1
+goto l-breakIf-fd6f7368-10e9-491a-872a-7922056062d7
+label l-else-a0c30bc1-a626-40a4-9474-ed1d366be4d0
+label l-breakIf-fd6f7368-10e9-491a-872a-7922056062d7
+push pointer 0
+call Ball.show 1
+pop temp 0
+push this 14
+return
+function Ball.bounce 5
+push argument 0
+pop pointer 0
+push this 2
+push constant 10
+call Math.divide 2
+pop local 2
+push this 3
+push constant 10
+call Math.divide 2
+pop local 3
+push argument 1
+push constant 0
+eq
+not
+if-goto l-else-ef5d32e6-ab28-4d47-b3fe-1574b927758c
+push constant 10
+pop local 4
+goto l-breakIf-e7c4baf8-5a34-4def-a326-a724a7ce34ca
+label l-else-ef5d32e6-ab28-4d47-b3fe-1574b927758c
+push this 2
+push constant 0
+lt
+not
+push argument 1
+push constant 1
+eq
+and
+push this 2
+push constant 0
+lt
+push argument 1
+push constant 1
+neg
+eq
+and
+or
+not
+if-goto l-else-e483c5ba-1fda-48b7-8030-975d7b5ea041
+push constant 20
+pop local 4
+goto l-breakIf-20cb7eb1-4b5d-4679-b144-8da1c995449f
+label l-else-e483c5ba-1fda-48b7-8030-975d7b5ea041
+push constant 5
+pop local 4
+label l-breakIf-20cb7eb1-4b5d-4679-b144-8da1c995449f
+label l-breakIf-e7c4baf8-5a34-4def-a326-a724a7ce34ca
+push this 14
+push constant 1
+eq
+not
+if-goto l-else-d814fb51-a316-4afa-b453-8fa458c07ecf
+push constant 506
+pop local 0
+push local 3
+push constant 50
+neg
+call Math.multiply 2
+push local 2
+call Math.divide 2
+pop local 1
+push this 1
+push local 1
+push local 4
+call Math.multiply 2
+add
+pop local 1
+goto l-breakIf-a3af32a9-b7a4-4744-819e-d8276e57da0b
+label l-else-d814fb51-a316-4afa-b453-8fa458c07ecf
+push this 14
+push constant 2
+eq
+not
+if-goto l-else-2e1c717f-6ddd-4cc3-aff3-5b396e77f0b0
+push constant 0
+pop local 0
+push local 3
+push constant 50
+call Math.multiply 2
+push local 2
+call Math.divide 2
+pop local 1
+push this 1
+push local 1
+push local 4
+call Math.multiply 2
+add
+pop local 1
+goto l-breakIf-2d2c917a-8e65-4110-a715-1bc55519b752
+label l-else-2e1c717f-6ddd-4cc3-aff3-5b396e77f0b0
+push this 14
+push constant 3
+eq
+not
+if-goto l-else-5dfb0d6e-086e-4ae7-a75e-1d5f7aa90d51
+push constant 250
+pop local 1
+push local 2
+push constant 25
+neg
+call Math.multiply 2
+push local 3
+call Math.divide 2
+pop local 0
+push this 0
+push local 0
+push local 4
+call Math.multiply 2
+add
+pop local 0
+goto l-breakIf-9f872925-5c43-4ddb-a9f1-f2541429d560
+label l-else-5dfb0d6e-086e-4ae7-a75e-1d5f7aa90d51
+push constant 0
+pop local 1
+push local 2
+push constant 25
+call Math.multiply 2
+push local 3
+call Math.divide 2
+pop local 0
+push this 0
+push local 0
+push local 4
+call Math.multiply 2
+add
+pop local 0
+label l-breakIf-9f872925-5c43-4ddb-a9f1-f2541429d560
+label l-breakIf-2d2c917a-8e65-4110-a715-1bc55519b752
+label l-breakIf-a3af32a9-b7a4-4744-819e-d8276e57da0b
+push pointer 0
+push local 0
+push local 1
+call Ball.setDestination 3
+pop temp 0
+push constant 0
+return

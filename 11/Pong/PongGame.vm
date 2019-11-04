@@ -1,0 +1,321 @@
+function PongGame.new 0
+push constant 7
+call Memory.alloc 1
+pop pointer 0
+call Screen.clearScreen 0
+pop temp 0
+push constant 50
+pop this 6
+push constant 230
+push constant 229
+push this 6
+push constant 7
+call Bat.new 4
+pop this 0
+push constant 253
+push constant 222
+push constant 0
+push constant 511
+push constant 0
+push constant 229
+call Ball.new 6
+pop this 1
+push this 1
+push constant 400
+push constant 0
+call Ball.setDestination 3
+pop temp 0
+push constant 0
+push constant 238
+push constant 511
+push constant 240
+call Screen.drawRectangle 4
+pop temp 0
+push constant 22
+push constant 0
+call Output.moveCursor 2
+pop temp 0
+push constant 8
+call String.new 1
+push constant 83
+call String.appendChar 2
+push constant 99
+call String.appendChar 2
+push constant 111
+call String.appendChar 2
+push constant 114
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 58
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 48
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push constant 0
+pop this 3
+push constant 0
+pop this 4
+push constant 0
+pop this 2
+push constant 0
+pop this 5
+push pointer 0
+return
+function PongGame.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+call Bat.dispose 1
+pop temp 0
+push this 1
+call Ball.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function PongGame.newInstance 0
+call PongGame.new 0
+pop static 0
+push constant 0
+return
+function PongGame.getInstance 0
+push static 0
+return
+function PongGame.run 1
+push argument 0
+pop pointer 0
+label l-while-b84972b8-062e-486d-a5ff-be61547c2b71
+push this 3
+not
+not
+if-goto l-breakWhile-92f2a4b7-dea7-4fa9-891a-ad7e62b2dd73
+label l-while-e07d30f0-3ee7-4754-8afb-7902e5f38d62
+push local 0
+push constant 0
+eq
+push this 3
+not
+and
+not
+if-goto l-breakWhile-f4587b14-3d0b-438f-b876-ebc6222fdfee
+call Keyboard.keyPressed 0
+pop local 0
+push this 0
+call Bat.move 1
+pop temp 0
+push pointer 0
+call PongGame.moveBall 1
+pop temp 0
+push constant 50
+call Sys.wait 1
+pop temp 0
+goto l-while-e07d30f0-3ee7-4754-8afb-7902e5f38d62
+label l-breakWhile-f4587b14-3d0b-438f-b876-ebc6222fdfee
+push local 0
+push constant 130
+eq
+not
+if-goto l-else-55ce9805-dc80-4726-89bf-b809404f4928
+push this 0
+push constant 1
+call Bat.setDirection 2
+pop temp 0
+goto l-breakIf-4c6e4702-781a-4657-99a2-1c8ce26db9cd
+label l-else-55ce9805-dc80-4726-89bf-b809404f4928
+push local 0
+push constant 132
+eq
+not
+if-goto l-else-279e4720-12b1-42b5-99e3-479c22f15020
+push this 0
+push constant 2
+call Bat.setDirection 2
+pop temp 0
+goto l-breakIf-16026a02-2596-4579-aa65-c293b915bbb3
+label l-else-279e4720-12b1-42b5-99e3-479c22f15020
+push local 0
+push constant 140
+eq
+not
+if-goto l-else-6a8847c8-6921-41db-9168-c87644264590
+push constant 1
+neg
+pop this 3
+goto l-breakIf-db1e5f38-c6e6-4bef-9f5f-df8a4d3c2e8f
+label l-else-6a8847c8-6921-41db-9168-c87644264590
+label l-breakIf-db1e5f38-c6e6-4bef-9f5f-df8a4d3c2e8f
+label l-breakIf-16026a02-2596-4579-aa65-c293b915bbb3
+label l-breakIf-4c6e4702-781a-4657-99a2-1c8ce26db9cd
+label l-while-e08a3ddd-86da-4bec-82aa-235b44119111
+push local 0
+push constant 0
+eq
+not
+push this 3
+not
+and
+not
+if-goto l-breakWhile-dbd38a81-7e3e-42d1-9628-fd3b7d36687d
+call Keyboard.keyPressed 0
+pop local 0
+push this 0
+call Bat.move 1
+pop temp 0
+push pointer 0
+call PongGame.moveBall 1
+pop temp 0
+push constant 50
+call Sys.wait 1
+pop temp 0
+goto l-while-e08a3ddd-86da-4bec-82aa-235b44119111
+label l-breakWhile-dbd38a81-7e3e-42d1-9628-fd3b7d36687d
+goto l-while-b84972b8-062e-486d-a5ff-be61547c2b71
+label l-breakWhile-92f2a4b7-dea7-4fa9-891a-ad7e62b2dd73
+push this 3
+not
+if-goto l-else-07327d5f-1c1d-4297-b5c8-d6e1a2e8b275
+push constant 10
+push constant 27
+call Output.moveCursor 2
+pop temp 0
+push constant 9
+call String.new 1
+push constant 71
+call String.appendChar 2
+push constant 97
+call String.appendChar 2
+push constant 109
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 79
+call String.appendChar 2
+push constant 118
+call String.appendChar 2
+push constant 101
+call String.appendChar 2
+push constant 114
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+goto l-breakIf-1ad09082-078d-44d6-ac9f-fba3d1af3271
+label l-else-07327d5f-1c1d-4297-b5c8-d6e1a2e8b275
+label l-breakIf-1ad09082-078d-44d6-ac9f-fba3d1af3271
+push constant 0
+return
+function PongGame.moveBall 5
+push argument 0
+pop pointer 0
+push this 1
+call Ball.move 1
+pop this 2
+push this 2
+push constant 0
+gt
+push this 2
+push this 5
+eq
+not
+and
+not
+if-goto l-else-69b56238-4abc-40f5-9daf-701ab925f1da
+push this 2
+pop this 5
+push constant 0
+pop local 0
+push this 0
+call Bat.getLeft 1
+pop local 1
+push this 0
+call Bat.getRight 1
+pop local 2
+push this 1
+call Ball.getLeft 1
+pop local 3
+push this 1
+call Ball.getRight 1
+pop local 4
+push this 2
+push constant 4
+eq
+not
+if-goto l-else-4873b0c9-e784-45ac-86be-85570317675b
+push local 1
+push local 4
+gt
+push local 2
+push local 3
+lt
+or
+pop this 3
+push this 3
+not
+not
+if-goto l-else-5c1ab534-0850-4da5-bdd7-20bc4e84ac99
+push local 4
+push local 1
+push constant 10
+add
+lt
+not
+if-goto l-else-a40d6c8c-c819-42cd-be73-34be948c855c
+push constant 1
+neg
+pop local 0
+goto l-breakIf-9b25d9db-6921-4292-8308-05c7a44907aa
+label l-else-a40d6c8c-c819-42cd-be73-34be948c855c
+push local 3
+push local 2
+push constant 10
+sub
+gt
+not
+if-goto l-else-2be9f4df-120e-4735-b749-9ad354bac227
+push constant 1
+pop local 0
+goto l-breakIf-7a21b74b-d37d-4198-99c4-b56dada497e8
+label l-else-2be9f4df-120e-4735-b749-9ad354bac227
+label l-breakIf-7a21b74b-d37d-4198-99c4-b56dada497e8
+label l-breakIf-9b25d9db-6921-4292-8308-05c7a44907aa
+push this 6
+push constant 2
+sub
+pop this 6
+push this 0
+push this 6
+call Bat.setWidth 2
+pop temp 0
+push this 4
+push constant 1
+add
+pop this 4
+push constant 22
+push constant 7
+call Output.moveCursor 2
+pop temp 0
+push this 4
+call Output.printInt 1
+pop temp 0
+goto l-breakIf-0324854b-a970-494e-a605-b6a733c3f75f
+label l-else-5c1ab534-0850-4da5-bdd7-20bc4e84ac99
+label l-breakIf-0324854b-a970-494e-a605-b6a733c3f75f
+goto l-breakIf-5429a096-b8b1-4d04-aa7e-db901d63a533
+label l-else-4873b0c9-e784-45ac-86be-85570317675b
+label l-breakIf-5429a096-b8b1-4d04-aa7e-db901d63a533
+push this 1
+push local 0
+call Ball.bounce 2
+pop temp 0
+goto l-breakIf-2377f035-fa77-4d26-8ebd-ffb8116bc031
+label l-else-69b56238-4abc-40f5-9daf-701ab925f1da
+label l-breakIf-2377f035-fa77-4d26-8ebd-ffb8116bc031
+push constant 0
+return
