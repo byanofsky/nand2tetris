@@ -99,10 +99,16 @@ export default class CompilationEngine {
   }
 
   compileSubroutineDec() {
+    if (!this.className) {
+      throw new Error(`ClassName not initialized`);
+    }
     this.symbolTable.startSubroutine();
     // keyword: 'constructor' | 'function' | 'method'
     const subType = this.tokenizer.keyword();
     this.tokenizer.advance();
+    if (subType === 'method') {
+      this.symbolTable.define('this', this.className, SymbolKind.Arg);
+    }
     // 'void' | type
     this.tokenizer.advance();
     // subroutineName
