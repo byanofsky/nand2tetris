@@ -325,7 +325,9 @@ export default class CompilationEngine {
     const index = this.symbolTable.indexOf(idenitifier);
     let popToSegment = segment;
     let popToIndex = index;
+    let isArray = false;
     if (this.tokenizer.symbol() === '[') {
+      isArray = true;
       // Push base of Array
       this.vmWriter.writePush(segment, index);
       // '['
@@ -336,8 +338,6 @@ export default class CompilationEngine {
       this.tokenizer.advance();
       // Add base of Array plus Index
       this.vmWriter.writeArithmetic(ArithmeticCommand.Add);
-      // Pop to THAT
-      this.vmWriter.writePop(Segment.Pointer, 1);
 
       // Update popTo Segment and Index
       popToSegment = Segment.That;
@@ -347,7 +347,16 @@ export default class CompilationEngine {
     this.tokenizer.advance();
     // expression
     this.compileExpression();
-    this.vmWriter.writePop(popToSegment, popToIndex);
+    if (!isArray) {
+      this.vmWriter.writePop(popToSegment, popToIndex);
+    } else {
+      // Pop to TEMP
+      this.vmWriter.writePop(Segment.Temp, 0);
+      // Pop saved array ref to THAT
+      this.vmWriter.writePop(Segment.Pointer, 1);
+      this.vmWriter.writePush(Segment.Temp, 0);
+      this.vmWriter.writePop(Segment.That, 0);
+    }
     // ';'
     this.tokenizer.advance();
   }
@@ -443,7 +452,7 @@ export default class CompilationEngine {
     this.vmWriter.writeLabel(falseLabel);
     if (this.isKeyword() && this.tokenizer.keyword() === 'else') {
       // 'else'
-      this.compileKeyword();
+      this.tokenizer.advance();
       // '{'
       this.tokenizer.advance();
       // statements
@@ -715,9 +724,5 @@ export default class CompilationEngine {
 
   private isIdentifier(): boolean {
     return this.tokenizer.tokenType() === TokenType.Identifier;
-  }
-
-  private compileKeyword() {
-    this.tokenizer.advance();
   }
 }
