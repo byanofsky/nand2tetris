@@ -1,0 +1,106 @@
+class Game {
+  field ScoreKeeper sk;
+  field Piece piece;               // Current falling piece
+  field Pit pit;
+  field boolean isGameOver;
+  field boolean shouldGenPiece;
+  field boolean isKeyHold;
+  field int keyHoldI;
+  field int nextPiece;
+  field int dir;
+
+  constructor Game new() {
+    let sk = ScoreKeeper.new();
+    let pit = Pit.new(16, 16, sk);
+    do Screen.drawRectangle(256, 0, 257, 255);
+    return this;
+  }
+
+  method void dispose() {
+    do piece.dispose();
+    do pit.dispose();
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  method void run() {
+    var int key, i;
+    let shouldGenPiece = true;
+    let isGameOver = false;
+    let isKeyHold = false;
+    let keyHoldI = 0;
+    let nextPiece = 0;
+    let dir = 0;
+    do sk.resetScore();
+    while (true) {
+      let i = 0;
+      if (shouldGenPiece) {
+        do genPiece();
+      }
+      while (i < 50) {
+        let dir = 0;
+        let key = Keyboard.keyPressed();
+        if (key = 0) {
+          let isKeyHold = false;
+          let keyHoldI = 0;
+        } else {
+          let keyHoldI = keyHoldI + 1;
+        }
+        if ((key > 0)) {
+          if (key = 130) {  // left
+            let dir = 1;
+          }
+          if (key = 132) {  // right
+            let dir = 2;
+          }
+          if (key = 133) {
+            let dir = 3;
+          }
+          if (key = 131) {
+            let dir = 4;
+          }
+          if (isKeyHold & (keyHoldI > 20)) {
+            do next(dir);
+            let keyHoldI = 0;
+          }
+          if (~isKeyHold) {
+            do next(dir);
+          }
+          let isKeyHold = true;
+        }
+        let i = i + 1;
+        do Sys.wait(50);
+      }
+      do nextDown();
+    }
+    return;
+  }
+
+  method void next(int dir) {
+    do piece.next(dir);
+    return;
+  }
+
+  method void nextDown() {
+    do piece.next(3);
+    if (piece.isCollide(pit) | piece.atBottom()) {
+      do pit.addPiece(piece);
+      do piece.dispose();
+      let shouldGenPiece = true;
+      let nextPiece = (nextPiece + 1) - ((nextPiece + 1)/3*3);
+    }
+    return;
+  }
+
+  method void genPiece() {
+    let piece = PieceFactory.createPiece(nextPiece);
+    do piece.show();
+    do piece.setPit(pit);
+    let shouldGenPiece = false;
+    if (piece.isCollide(pit)) {
+      do Output.printString("Game Over");
+      do Sys.halt();
+    }
+    return;
+  }
+}

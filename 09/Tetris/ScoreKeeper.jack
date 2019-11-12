@@ -1,0 +1,27 @@
+class ScoreKeeper {
+  field int score;
+
+  constructor ScoreKeeper new() {
+    let score = 0;
+    return this;
+  }
+
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  method void resetScore() {
+    let score = 0;
+    do Output.moveCursor(0, 63);
+    do Output.printInt(score);
+    return;
+  }
+
+  method void addPoint() {
+    let score = score + 1;
+    do Output.moveCursor(0, 63);
+    do Output.printInt(score);
+    return;
+  }
+}

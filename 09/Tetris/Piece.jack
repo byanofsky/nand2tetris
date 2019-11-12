@@ -1,0 +1,190 @@
+class Piece {
+  field int x, y;
+  field Array squares;
+  field int length;
+  field Pit pit;
+
+  constructor Piece new(int aX, int aY, int aLength) {
+    let length = 0;
+    let x = aX;
+    let y = aY;
+    let squares = Array.new(aLength);
+    do show();
+    return this;
+  }
+
+  method void setPit(Pit aPit) {
+    let pit = aPit;
+    return;
+  }
+
+  method void dispose() {
+    var int i;
+    var Square curSquare;
+    let i = 0;
+    while (i < length) {
+      let curSquare = squares[i];
+      do curSquare.dispose();
+      let i = i + 1;
+    }
+    do squares.dispose();
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  method void add(Square s) {
+    let squares[length] = s;
+    let length = length + 1;
+    return;
+  }
+
+  method int length() {
+    return length;
+  }
+
+  method int getSquarePosX(int i) {
+    var Square s;
+    let s = squares[i];
+    return s.getX() + x;
+  }
+
+  method int getSquarePosY(int i) {
+    var Square s;
+    let s = squares[i];
+    return s.getY() + y;
+  }
+
+  method void next(int dir) {
+    if (dir = 0) {
+      return;
+    }
+    do hide();
+    if (dir = 4) {
+      do rotate();
+    } else {
+      do move(dir);
+    }
+    do show();
+    return;
+  }
+
+  method void move(int dir) {
+    if (~canMove(dir)) {
+      return;
+    }
+    if ((dir = 1)) {
+      let x = x - 1;
+    }
+    if ((dir = 2)) {
+      let x = x + 1;
+    }
+    if ((dir = 3)) {
+      let y = y + 1;
+    }
+    return;
+  }
+
+  method void rotate() {
+    var int i;
+    let i = 0;
+    while (i < length) {
+      do rotateSquare(i);
+      let i = i + 1;
+    }
+    return;
+  }
+
+  method void rotateSquare(int i) {
+    var Square s;
+    let s = squares[i];
+    do s.rotate(); 
+    return;
+  }
+
+  method boolean canMove(int dir) {
+    var int sx, sy;
+    var int i;
+    let i = 0;
+    while (i < length) {
+      let sx = getSquarePosX(i);
+      let sy = getSquarePosY(i);
+      if (dir = 1) {
+        if (sx < 1) {
+          return false;
+        }
+        if (pit.isAt(sx-1, sy)) {
+          return false;
+        }
+      }
+      if (dir = 2) {
+        if (sx > 14) {
+          return false;
+        }
+        if (pit.isAt(sx+1, sy)) {
+          return false;
+        }
+      }
+      if (dir = 3) {
+        let sy = getSquarePosY(i);
+        if (sy > 14) {
+          return false;
+        }
+        if (pit.isAt(sx, sy+1)) {
+          return false;
+        }
+      }
+      let i = i + 1;
+    }
+    return true;
+  }
+
+  method void show() {
+    do Screen.setColor(true);
+    do draw();
+    return;
+  }
+
+  method void hide() {
+    do Screen.setColor(false);
+    do draw();
+    return;
+  }
+
+  method void draw() {
+    var Square curSquare;
+    var int i;
+    var int sx, sy;
+    let i = 0;
+    while (i < length) {
+      let curSquare = squares[i];
+      let sx = x + curSquare.getX() * 16;
+      let sy = y + curSquare.getY() * 16;
+      do Screen.drawRectangle(sx, sy, sx+15, sy+15);
+      let i = i + 1;
+    }
+    return;
+  }
+
+  method boolean atBottom() {
+    var int i;
+    let i = 0;
+    while (i < length) {
+      if (getSquarePosY(i) = 15) {
+        return true;
+      }
+      let i = i + 1;
+    }
+    return false;
+  }
+
+  method boolean isCollide(Pit pit) {
+    var int i;
+    while (i < length) {
+      if (pit.isAt(getSquarePosX(i), getSquarePosY(i) + 1)) {
+        return true;
+      }
+      let i = i + 1;
+    }
+    return false;
+  }
+}

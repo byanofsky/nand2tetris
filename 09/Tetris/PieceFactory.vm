@@ -1,0 +1,132 @@
+function PieceFactory.new 0
+push constant 0
+call Memory.alloc 1
+pop pointer 0
+push pointer 0
+return
+function PieceFactory.createPiece 0
+push argument 0
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+call PieceFactory.createSquare 0
+return
+label IF_FALSE0
+push argument 0
+push constant 1
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+call PieceFactory.createL 0
+return
+label IF_FALSE1
+push argument 0
+push constant 2
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+call PieceFactory.createI 0
+return
+label IF_FALSE2
+call PieceFactory.createSquare 0
+return
+function PieceFactory.createSquare 1
+push constant 2
+push constant 0
+push constant 4
+call Piece.new 3
+pop local 0
+push local 0
+push constant 0
+push constant 0
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+push constant 1
+push constant 0
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+push constant 0
+push constant 1
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+push constant 1
+push constant 1
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+return
+function PieceFactory.createL 1
+push constant 2
+push constant 0
+push constant 4
+call Piece.new 3
+pop local 0
+push local 0
+push constant 0
+push constant 0
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+push constant 1
+push constant 0
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+push constant 2
+push constant 0
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+push constant 2
+push constant 1
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+return
+function PieceFactory.createI 1
+push constant 2
+push constant 0
+push constant 4
+call Piece.new 3
+pop local 0
+push local 0
+push constant 0
+push constant 0
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+push constant 0
+push constant 1
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+push constant 0
+push constant 2
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+push constant 0
+push constant 3
+call Square.new 2
+call Piece.add 2
+pop temp 0
+push local 0
+return

@@ -1,0 +1,31 @@
+class Square {
+  field int x, y;
+
+  constructor Square new(int aX, int aY) {
+    let x = aX;
+    let y = aY;
+    return this;
+  }
+
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  method int getX() {
+    return x;
+  }
+
+  method int getY() {
+    return y;
+  }
+
+  // TODO: Improve implementation of rotate
+  method void rotate() {
+    var int tempY;
+    let tempY = y;
+    let y = x;
+    let x = tempY;
+    return;
+  }
+}

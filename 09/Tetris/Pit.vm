@@ -1,0 +1,365 @@
+function Pit.new 0
+push constant 4
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+push argument 1
+call Math.multiply 2
+call Array.new 1
+pop this 2
+push argument 0
+pop this 0
+push argument 1
+pop this 1
+push argument 2
+pop this 3
+push pointer 0
+return
+function Pit.dispose 0
+push argument 0
+pop pointer 0
+push this 2
+call Array.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Pit.addPiece 3
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push argument 1
+call Piece.length 1
+lt
+not
+if-goto WHILE_END0
+push argument 1
+push local 0
+call Piece.getSquarePosX 2
+pop local 1
+push argument 1
+push local 0
+call Piece.getSquarePosY 2
+pop local 2
+push pointer 0
+push local 1
+push local 2
+call Pit.addSquare 3
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push pointer 0
+call Pit.checkRows 1
+pop temp 0
+push constant 0
+return
+function Pit.addSquare 1
+push argument 0
+pop pointer 0
+push pointer 0
+push argument 1
+push argument 2
+call Pit.getPos 3
+pop local 0
+push local 0
+push this 2
+add
+push constant 1
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push constant 0
+return
+function Pit.isAt 1
+push argument 0
+pop pointer 0
+push pointer 0
+push argument 1
+push argument 2
+call Pit.getPos 3
+pop local 0
+push local 0
+push this 2
+add
+pop pointer 1
+push that 0
+return
+function Pit.getPos 0
+push argument 0
+pop pointer 0
+push argument 2
+push this 1
+call Math.multiply 2
+push argument 1
+add
+return
+function Pit.checkRows 4
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 0
+lt
+not
+if-goto WHILE_END0
+push constant 0
+not
+pop local 3
+push constant 0
+pop local 1
+label WHILE_EXP1
+push local 1
+push this 1
+lt
+push local 3
+and
+not
+if-goto WHILE_END1
+push pointer 0
+push local 1
+push local 0
+call Pit.getPos 3
+pop local 2
+push local 2
+push this 2
+add
+pop pointer 1
+push that 0
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+pop local 3
+label IF_FALSE0
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP1
+label WHILE_END1
+push local 3
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push pointer 0
+push local 0
+call Pit.collapseRow 2
+pop temp 0
+push this 3
+call ScoreKeeper.addPoint 1
+pop temp 0
+label IF_FALSE1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Pit.collapseRow 1
+push argument 0
+pop pointer 0
+push argument 1
+pop local 0
+label WHILE_EXP0
+push local 0
+push constant 0
+gt
+not
+if-goto WHILE_END0
+push pointer 0
+push local 0
+call Pit.clearRow 2
+pop temp 0
+push pointer 0
+push local 0
+push constant 1
+sub
+push local 0
+call Pit.copyRow 3
+pop temp 0
+push pointer 0
+push local 0
+call Pit.drawRow 2
+pop temp 0
+push local 0
+push constant 1
+sub
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push pointer 0
+push constant 0
+call Pit.clearRow 2
+pop temp 0
+push constant 0
+return
+function Pit.drawRow 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 1
+lt
+not
+if-goto WHILE_END0
+push pointer 0
+push local 0
+push argument 1
+call Pit.getPos 3
+pop local 1
+push local 1
+push this 2
+add
+pop pointer 1
+push that 0
+push constant 1
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+label IF_END0
+push local 0
+push constant 16
+call Math.multiply 2
+push argument 1
+push constant 16
+call Math.multiply 2
+push local 0
+push constant 16
+call Math.multiply 2
+push constant 15
+add
+push argument 1
+push constant 16
+call Math.multiply 2
+push constant 15
+add
+call Screen.drawRectangle 4
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Pit.copyRow 3
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 1
+lt
+not
+if-goto WHILE_END0
+push pointer 0
+push local 0
+push argument 1
+call Pit.getPos 3
+pop local 1
+push pointer 0
+push local 0
+push argument 2
+call Pit.getPos 3
+pop local 2
+push local 2
+push this 2
+add
+push local 1
+push this 2
+add
+pop pointer 1
+push that 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function Pit.clearRow 2
+push argument 0
+pop pointer 0
+push constant 0
+pop local 0
+label WHILE_EXP0
+push local 0
+push this 1
+lt
+not
+if-goto WHILE_END0
+push pointer 0
+push local 0
+push argument 1
+call Pit.getPos 3
+pop local 1
+push local 1
+push this 2
+add
+push constant 0
+pop temp 0
+pop pointer 1
+push temp 0
+pop that 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push constant 0
+push argument 1
+push constant 16
+call Math.multiply 2
+push this 1
+push constant 16
+call Math.multiply 2
+push constant 1
+sub
+push argument 1
+push constant 16
+call Math.multiply 2
+push constant 15
+add
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+return

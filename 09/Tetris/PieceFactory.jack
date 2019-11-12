@@ -1,0 +1,48 @@
+class PieceFactory {
+  constructor PieceFactory new() {
+    return this;
+  }
+
+  function Piece createPiece(int type) {
+    if (type = 0) {
+      return PieceFactory.createSquare();
+    }
+    if (type = 1) {
+      return PieceFactory.createL();
+    }
+    if (type = 2) {
+      return PieceFactory.createI();
+    }
+    return PieceFactory.createSquare();
+  }
+
+  function Piece createSquare() {
+    var Piece piece;
+    let piece = Piece.new(2, 0, 4);
+    do piece.add(Square.new(0, 0));
+    do piece.add(Square.new(1, 0));
+    do piece.add(Square.new(0, 1));
+    do piece.add(Square.new(1, 1));
+    return piece;
+  }
+
+  function Piece createL() {
+    var Piece piece;
+    let piece = Piece.new(2, 0, 4);
+    do piece.add(Square.new(0, 0));
+    do piece.add(Square.new(1, 0));
+    do piece.add(Square.new(2, 0));
+    do piece.add(Square.new(2, 1));
+    return piece;
+  }
+
+  function Piece createI() {
+    var Piece piece;
+    let piece = Piece.new(2, 0, 4);
+    do piece.add(Square.new(0, 0));
+    do piece.add(Square.new(0, 1));
+    do piece.add(Square.new(0, 2));
+    do piece.add(Square.new(0, 3));
+    return piece;
+  }
+}

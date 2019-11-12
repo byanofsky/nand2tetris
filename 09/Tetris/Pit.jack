@@ -1,0 +1,127 @@
+class Pit {
+  field int rows, cols;
+  field Array squares;
+  field ScoreKeeper sk;
+
+  constructor Pit new(int nRows, int nCols, ScoreKeeper aSk) {
+    let squares = Array.new(nRows * nCols);
+    let rows = nRows;
+    let cols = nCols;
+    let sk = aSk;
+    return this;
+  }
+
+  method void dispose() {
+    do squares.dispose();
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  method void addPiece(Piece piece) {
+    var int i, x, y;
+    let i = 0;
+    while (i < piece.length()) {
+      let x = piece.getSquarePosX(i);
+      let y = piece.getSquarePosY(i);
+      do addSquare(x, y);
+      let i = i + 1;
+    }
+    do checkRows();
+    return;
+  }
+
+  method void addSquare(int x, int y) {
+    var int pos;
+    let pos = getPos(x, y);
+    let squares[pos] = 1;
+    return;
+  }
+
+  method boolean isAt(int x, int y) {
+    var int pos;
+    let pos = getPos(x, y);
+    return squares[pos];
+  }
+
+  method int getPos(int x, int y) {
+    return y * cols + x;
+  }
+
+  method void checkRows() {
+    var int y, x, pos;
+    var boolean isRowFull;
+    let y = 0;
+
+    while (y < rows) {
+      let isRowFull = true;
+      let x = 0;
+      while ((x < cols) & isRowFull) {
+        let pos = getPos(x, y);
+        if (squares[pos] = 0) {
+          let isRowFull = false;
+        }
+        let x = x + 1;
+      }
+      if (isRowFull) {
+        do collapseRow(y);
+        do sk.addPoint();
+      }
+      let y = y + 1;
+    }
+    return;
+  }
+
+  method void collapseRow(int y) {
+    var int i;
+    let i = y;
+    while (i > 0) {
+      do clearRow(i);
+      do copyRow(i - 1, i);
+      do drawRow(i);
+      let i = i - 1;
+    }
+    do clearRow(0);
+    return;
+  }
+
+  method void drawRow(int y) {
+    var int x, pos;
+    let x = 0;
+    while (x < cols) {
+      let pos = getPos(x, y);
+      if (squares[pos] = 1) {
+        do Screen.setColor(true);
+      } else {
+        do Screen.setColor(false);
+      }
+      do Screen.drawRectangle(x*16, y*16, x*16+15, y*16+15);
+      let x = x + 1;
+    }
+    return;
+  }
+
+  method void copyRow(int from, int to) {
+    var int x, posFrom, posTo;
+    let x = 0;
+    while (x < cols) {
+      let posFrom = getPos(x, from);
+      let posTo = getPos(x, to);
+      let squares[posTo] = squares[posFrom];
+      let x = x + 1;
+    }
+    return;
+  }
+
+  method void clearRow(int y) {
+    var int x, pos;
+    let x = 0;
+    while (x < cols) {
+      let pos = getPos(x, y);
+      let squares[pos] = 0;
+      let x = x + 1;
+    }
+    do Screen.setColor(false);
+    do Screen.drawRectangle(0, y*16, cols*16-1, y*16+15);
+    return;
+  }
+}
