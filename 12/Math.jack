@@ -8,13 +8,39 @@
  * Note: Jack compilers implement multiplication and division using OS method calls.
  */
 class Math {
+    static Array TWOS_POWER;
+    static int DIV_SUM;
 
     /** Initializes the library. */
     function void init() {
+        let TWOS_POWER = Array.new(16);
+        let DIV_SUM = 0;
+        do Math.initTwosPower();
+        return;
+    }
+
+    function void initTwosPower() {
+        var int j, total;
+        let j = 0;
+        let total = 1;
+        while (j < 16) {
+            let TWOS_POWER[j] = total;
+            let total = total + total;
+            let j = j + 1;
+        }
+        return;
     }
 
     /** Returns the absolute value of x. */
     function int abs(int x) {
+        if (x < 0) {
+            return -x;
+        }
+        return x;
+    }
+
+    function boolean bit(int x, int j) {
+        return ~(x & TWOS_POWER[j] = 0);
     }
 
     /** Returns the product of x and y. 
@@ -23,6 +49,18 @@ class Math {
      *  the Jack expressions x*y and multiply(x,y) return the same value.
      */
     function int multiply(int x, int y) {
+        var int n, shiftedX, sum;
+        let n = 0;
+        let shiftedX = x;
+        let sum = 0;
+        while (n < 16) {
+            if (Math.bit(y, n)) {
+                let sum = sum + shiftedX;
+            }
+            let shiftedX = shiftedX + shiftedX;
+            let n = n + 1;
+        }
+        return sum;
     }
 
     /** Returns the integer part of x/y.
@@ -31,17 +69,71 @@ class Math {
      *  the Jack expressions x/y and divide(x,y) return the same value.
      */
     function int divide(int x, int y) {
+        var int result;
+        var boolean isXNeg, isYNeg;
+        let isXNeg = x < 0;
+        let isYNeg = y < 0;
+        let result = Math.dividePositive(Math.abs(x), Math.abs(y));
+        if (~(isXNeg = isYNeg)) {
+            let result = -result;
+        }
+        return result;
+    }
+
+    /** Divide function which only handles positive integers.
+     */
+    function int dividePositive(int x, int y) {
+        var int q;
+        if (y < 0) {
+            do Sys.error(21);
+            let DIV_SUM = 0;
+            return 0;
+        }
+        if (y > x) {
+            let DIV_SUM = 0;
+            return 0;
+        }
+        let q = Math.divide(x, y + y);
+        if (((x - DIV_SUM) < y)) {
+            return q + q;
+        } else {
+            let DIV_SUM = DIV_SUM + y;
+            return q + q + 1;
+        }
     }
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
+        var int j, y, temp, sqrd;
+        let j = 7;
+        let y = 0;
+        while (j > -1) {
+            let temp = y + TWOS_POWER[j];
+            let sqrd = temp * temp;
+            if (
+                ((sqrd < x) | (sqrd = x))
+                & (sqrd > 0)
+            ) {
+                let y = temp;
+            }
+            let j = j - 1;
+        }
+        return y;
     }
 
     /** Returns the greater number. */
     function int max(int a, int b) {
+        if (a > b) {
+            return a;
+        }
+        return b;
     }
 
     /** Returns the smaller number. */
     function int min(int a, int b) {
+        if (a < b) {
+            return a;
+        }
+        return b;
     }
 }
